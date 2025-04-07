@@ -44,6 +44,69 @@
       </button> --> 
     </div>
   </div>
-</header>    
+</header>  
+<div class="container">
+  <h1>Kalendar s Obavezama</h1>
+  
+  <div class="calendar-header">
+      <div class="nav-buttons">
+          <button id="prev-month">← Prethodni mjesec</button>
+      </div>
+      <div class="month-year" id="month-year">Lipanj 2023</div>
+      <div class="nav-buttons">
+          <button id="next-month">Sljedeći mjesec →</button>
+      </div>
+  </div>
+  
+  <div class="calendar-grid" id="calendar">
+      <div class="day-header">Ponedjeljak</div>
+      <div class="day-header">Utorak</div>
+      <div class="day-header">Srijeda</div>
+      <div class="day-header">Četvrtak</div>
+      <div class="day-header">Petak</div>
+      <div class="day-header">Subota</div>
+      <div class="day-header">Nedjelja</div>
+  </div>
+  
+  <div class="event-form">
+      <h2>Dodaj novu obavezu</h2>
+      <div class="form-group">
+          <label for="event-date">Datum:</label>
+          <input type="date" id="event-date" required>
+      </div>
+      <div class="form-group">
+          <label for="event-title">Naziv obaveze:</label>
+          <input type="text" id="event-title" placeholder="Unesite naziv obaveze" required>
+      </div>
+      <div class="form-group">
+          <label for="event-description">Opis (opcionalno):</label>
+          <textarea id="event-description" placeholder="Unesite opis obaveze"></textarea>
+      </div>
+      <div class="form-actions">
+          <button type="button" class="btn btn-primary" id="add-event">Dodaj obavezu</button>
+      </div>
+  </div>
+</div>
+
+<div class="modal" id="event-modal">
+  <div class="modal-content">
+      <div class="modal-header">
+          <h2 id="modal-event-title">Detalji obaveze</h2>
+          <span class="close-btn" id="close-modal">&times;</span>
+      </div>
+      <div class="form-group">
+          <p><strong>Datum:</strong> <span id="modal-event-date"></span></p>
+      </div>
+      <div class="form-group">
+          <p><strong>Opis:</strong> <span id="modal-event-description"></span></p>
+      </div>
+      <div class="form-actions">
+          <button type="button" class="btn btn-danger" id="delete-event">Obriši obavezu</button>
+          <button type="button" class="btn" id="close-modal-btn">Zatvori</button>
+      </div>
+  </div>
+</div>
+
+<script src="script.js"></script>  
 </body>
 </html>
