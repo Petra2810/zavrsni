@@ -1,0 +1,120 @@
+body {
+    font-family:Arial, Helvetica, sans-serif;
+    margin: 0;
+    background-color: #D6E0E2;
+}
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h1 {
+    text-align: center;
+    color: #233349;
+    font-weight: 1000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: x-large;
+}
+.calendar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.month-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.month-selector button {
+    background: #D3A292;
+    color: #233349;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    align-items: center;
+}
+.month-selector button:hover {
+    background: #9EAFB6;
+}
+.month-year {
+    font-size: 20px;
+    font-weight: bold;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.calendar-day {
+    min-height: 100px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    position: relative;
+}
+.calendar-day:hover {
+    background-color: #f9f9f9;
+}
+.day-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.other-month {
+    color: #aaa;
+    background-color: #f9f9f9;
+}
+.today {
+    background-color: #e6f7ff;
+    border: 1px solid #b3e0ff;
+}
+.event {
+    background-color: #e1f5fe;
+    padding: 2px 5px;
+    margin: 2px 0;
+    border-radius: 3px;
+    font-size: 14px;
+    word-break: break-word;
+}
+.event-form {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+.event-form input, .event-form textarea, .event-form button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+.event-form button {
+    background-color: #233349;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+.event-form button:hover {
+    background-color: #9EAFB6;
+}
+.selected-day {
+    background-color: #fffde7;
+}
