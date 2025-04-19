@@ -124,18 +124,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Sakrij formu za unos obaveze
+
     function hideEventForm() {
-        eventForm.style.display = 'none';
-        eventTitle.value = '';
-        eventDescription.value = '';
-        
-        // Ukloni odabrani dan
-        const previouslySelected = document.querySelector('.selected-day');
-        if (previouslySelected) {
-            previouslySelected.classList.remove('selected-day');
-        }
-    }
+    eventForm.style.display = 'none';
+    eventTitle.value = '';
+    eventDescription.value = '';
+    document.getElementById('event-priority').value = 'medium';
     
+    // Ukloni odabrani dan
+    const previouslySelected = document.querySelector('.selected-day');
+    if (previouslySelected) {
+        previouslySelected.classList.remove('selected-day');
+    }
+}
+  
     //Spremanje obaveze
     function saveEvent() {
         const title = eventTitle.value.trim();
@@ -145,28 +147,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const description = eventDescription.value.trim();
+        const priority = document.getElementById('event-priority').value;
         const dateKey = formatDateKey(selectedDate);
         
-        //Dohvati postojeće obaveze iz localStorage
+        // Dohvati postojeće obaveze iz localStorage
         let events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
         
-        //Dodaj novu obavezu
+        // Dodaj novu obavezu
         if (!events[dateKey]) {
             events[dateKey] = [];
         }
         events[dateKey].push({
             title: title,
             description: description,
-            createdAt: new Date().toISOString()
+            priority: priority,
+            createdAt: new Date().toISOString(),
+            id: Date.now() // Dodajemo jedinstveni ID za svaku obavezu
         });
         
-        //Spremi natrag u localStorage
+        // Spremi natrag u localStorage
         localStorage.setItem('calendarEvents', JSON.stringify(events));
         
-        //Sakrij formu i osvježi kalendar
+        // Sakrij formu i osvježi kalendar
         hideEventForm();
         loadEvents();
     }
+    
     
     //Odustani od unosa obaveze
     function cancelEvent() {
@@ -175,34 +181,70 @@ document.addEventListener('DOMContentLoaded', function() {
     
     //Učitaj obaveze za sadasnji misec
     function loadEvents() {
-        //Dohvati sve obaveze iz localStorage
+        // Dohvati sve obaveze iz localStorage
         const events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
         
-        //Prođi kroz sve dane u kalendaru
+        // Prođi kroz sve dane u kalendaru
         const dayElements = document.querySelectorAll('.calendar-day:not(.other-month)');
         dayElements.forEach(dayElement => {
-            //Očisti postojeće obaveze
+            // Očisti postojeće obaveze
             const existingEvents = dayElement.querySelectorAll('.event');
             existingEvents.forEach(event => event.remove());
             
-            //Dohvati broj dana
+            // Dohvati broj dana
             const dayNumber = parseInt(dayElement.querySelector('.day-number').textContent);
             const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNumber);
             const dateKey = formatDateKey(date);
             
-            //Ako postoje obaveze za taj dan, dodaj ih
+            // Ako postoje obaveze za taj dan, dodaj ih
             if (events[dateKey]) {
                 events[dateKey].forEach(event => {
                     const eventElement = document.createElement('div');
-                    eventElement.className = 'event';
-                    eventElement.title = event.description || event.title;
-                    eventElement.textContent = event.title;
+                    eventElement.className = `event ${event.priority}-priority`;
+
+                    eventElement.dataset.id = event.id;
+                    
+                    const eventTitleElement = document.createElement('span');
+                    eventTitleElement.textContent = event.title;
+                    if (event.description) {
+                        eventTitleElement.title = event.description;
+                    }
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-event';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteEvent(dateKey, event.id);
+                    });
+                    
+                    eventElement.appendChild(eventTitleElement);
+                    eventElement.appendChild(deleteBtn);
                     dayElement.appendChild(eventElement);
                 });
             }
         });
     }
     
+    
+    // Dodajte novu funkciju za brisanje obaveza:
+    function deleteEvent(dateKey, eventId) {
+    if (!confirm('Jeste li sigurni da želite izbrisati ovu obavezu?')) {
+        return;
+    }
+    
+    let events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
+    if (events[dateKey]) {
+        events[dateKey] = events[dateKey].filter(event => event.id != eventId);
+        
+        if (events[dateKey].length === 0) {
+            delete events[dateKey];
+        }
+        
+        localStorage.setItem('calendarEvents', JSON.stringify(events));
+        loadEvents();
+    }
+    }
     //Formirat ključ za localStorage (YYYY-MM-DD)
     function formatDateKey(date) {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -214,4 +256,6 @@ document.addEventListener('DOMContentLoaded', function() {
                            "srpnja", "kolovoza", "rujna", "listopada", "studenog", "prosinca"];
         return `${date.getDate()}. ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
     }
-})
+});
+
+

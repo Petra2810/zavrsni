@@ -63,14 +63,36 @@
     </div>
     
     <div class="calendar-grid" id="calendar-days"></div>
+    <div id="event-form" class="event-form">
+      <h3>Dodaj novu obavezu</h3>
+      <p id="selected-date-display"></p>
+      
+      <div class="form-group">
+          <label for="event-title">Naziv obaveze:</label>
+          <input type="text" id="event-title" placeholder="Unesite naziv obaveze">
+      </div>
+      
+      <div class="form-group">
+          <label for="event-description">Opis:</label>
+          <textarea id="event-description" placeholder="Unesite opis obaveze (opcionalno)"></textarea>
+      </div>
+      
+      <div class="form-group">
+          <label for="event-priority">Važnost:</label>
+          <select id="event-priority">
+              <option value="low">Niska</option>
+              <option value="medium" selected>Srednja</option>
+              <option value="high">Visoka</option>
+          </select>
+      </div>
+      
+      <div class="form-actions">
+          <button id="save-event">Spremi</button>
+          <button id="cancel-event">Odustani</button>
+      </div>
+  </div>
     
-    <div class="event-form" id="event-form" style="display: none;">
-        <h3>Dodaj obavezu za <span id="selected-date-display"></span></h3>
-        <input type="text" id="event-title" placeholder="Naziv obaveze" required>
-        <textarea id="event-description" placeholder="Opis (opcionalno)"></textarea>
-        <button id="save-event">Spremi obavezu</button>
-        <button id="cancel-event" style="background-color: #D3A292">Odustani</button>
-    </div>
+
     
 </div>
 
