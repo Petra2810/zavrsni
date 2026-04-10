@@ -1,0 +1,167 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script>
+</head>
+<body>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
+    authDomain: "zavrsnipetradaniela.firebaseapp.com",
+    databaseURL: "https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "zavrsnipetradaniela",
+    storageBucket: "zavrsnipetradaniela.firebasestorage.app",
+    messagingSenderId: "1016932466553",
+    appId: "1:1016932466553:web:994b6d55d4d04efa8939a8",
+    measurementId: "G-B7ZB4CZJK4"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Firebase Realtime Database Test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!-- Ako imaš neku CSS datoteku, ostavi ovaj redak. U suprotnom ga obriši ili ostavi praznog. -->
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4;}
+        h1, h2 { color: #333; }
+        button, input[type="text"], input[type="email"], input[type="number"] {
+            padding: 8px 12px;
+            margin: 5px 0; /* Nulirao sam margin-left/right da labela bolje radi */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            vertical-align: middle; /* Poravnanje s labelama */
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            min-height: 150px;
+            overflow-y: auto;
+            max-height: 300px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #output p { margin: 2px 0; font-size: 0.9em; }
+        .section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section label {
+            display: inline-block;
+            width: 120px;
+            margin-bottom: 10px;
+            vertical-align: middle;
+        }
+        .section input {
+            width: 250px;
+        }
+        .section .button-group {
+            margin-top: 10px;
+        }
+    </style>
+    <!-- Ovdje povezujemo tvoju JavaScript datoteku - OVO JE KLJUČNO! -->
+    <script type="module" src="main.js"></script>
+</head>
+<body>
+
+    <h1>Firebase Realtime Database Interaktivni Test</h1>
+
+    <div class="section">
+        <h2>1. Korisnici: Unos, Ažuriranje, Brisanje (Ručno)</h2>
+        <p>Unesite podatke i koristite gumbe za direktnu interakciju s bazom.</p>
+        <div>
+            <label for="userIdInput">ID Korisnika:</label>
+            <input type="text" id="userIdInput" placeholder="npr. noviKorisnik123" value="testUser1"><br>
+        </div>
+        <div>
+            <label for="userNameInput">Ime:</label>
+            <input type="text" id="userNameInput" placeholder="Ime korisnika"><br>
+        </div>
+        <div>
+            <label for="userEmailInput">Email:</label>
+            <input type="email" id="userEmailInput" placeholder="Email korisnika"><br>
+        </div>
+        <div>
+            <label for="userAgeInput">Dob:</label>
+            <input type="number" id="userAgeInput" placeholder="Dob (opcionalno)"><br>
+        </div>
+        <div>
+            <label for="userCityInput">Grad:</label>
+            <input type="text" id="userCityInput" placeholder="Grad (opcionalno)"><br>
+        </div>
+        <div class="button-group">
+            <button id="addOrUpdateUserManual">Spremi / Ažuriraj Korisnika</button>
+            <button id="deleteUserManual" style="background-color: #f44336;">Obriši Korisnika</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Poruke: Unos nove (Ručno)</h2>
+        <p>Unesite autora i tekst poruke, pa dodajte u bazu.</p>
+        <div>
+            <label for="messageAuthorInput">Autor:</label>
+            <input type="text" id="messageAuthorInput" placeholder="Ime autora"><br>
+        </div>
+        <div>
+            <label for="messageTextInput">Tekst poruke:</label>
+            <input type="text" id="messageTextInput" placeholder="Unesite poruku"><br>
+        </div>
+        <div class="button-group">
+            <button id="addMessageManual">Dodaj Poruku</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Automatske demonstracije</h2>
+        <p>Ovi gumbi pokreću unaprijed definirane sekvence operacija (za brzu provjeru).</p>
+        <div class="button-group">
+            <button id="addUserData">Pokreni automatsku CRUD demonstraciju za Ivu</button>
+            <button id="addMessageData">Dodaj 2 automatske test poruke</button>
+        </div>
+    </div>
+
+    <div id="output">
+        <p>Rezultati i poruke će se prikazati ovdje...</p>
+    </div>
+
+</body>
+</html>

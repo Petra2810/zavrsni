@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Firebase Realtime Database Primjer</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <!-- Ako main.js sadrži samo skripte koje nisu moduli,
+         onda ovaj redak neće trebati type="module",
+         ali ako koristi module, treba mu isti type. -->
+    <!-- U ovom primjeru, sav Firebase kod je unutar script taga,
+         tako da main.js možda i ne treba za ovu funkcionalnost. -->
+    <!-- <script src='main.js'></script> -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        #output { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
+    </style>
+    <script type="module" src="main.js"></script>
+
+</head>
+<body>
+
+
+    <h1>Dodavanje podataka u Firebase Realtime Database</h1>
+
+    <p>Kliknite na gumbe ispod za dodavanje testnih podataka u vašu Firebase bazu.</p>
+
+    <button id="addUserData">Dodaj/Ažuriraj Korisnika</button>
+    <button id="addMessageData">Dodaj Novu Poruku</button>
+
+    <div id="output">
+        <p>Rezultati i poruke će se prikazati ovdje...</p>
+    </div>
+
+    <script type="module">
+        // Dohvaćanje elementa za prikaz izlaza
+        const outputDiv = document.getElementById('output');
+
+        function logToOutput(message) {
+            outputDiv.innerHTML += `<p>${message}</p>`;
+            console.log(message); // Logiramo i u konzolu preglednika
+        }
+
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        // Uvozimo i funkcije za Realtime Database
+        import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
+            authDomain: "zavrsnipetradaniela.firebaseapp.com",
+            databaseURL: "https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "zavrsnipetradaniela",
+            storageBucket: "zavrsnipetradaniela.firebasestorage.app",
+            messagingSenderId: "1016932466553",
+            appId: "1:1016932466553:web:994b6d55d4d04efa8939a8",
+            measurementId: "G-B7ZB4CZJK4"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        // const analytics = getAnalytics(app); // Ostavio sam zakomentirano ako ga ne koristite odmah
+
+        // Dohvatite Realtime Database servis
+        const database = getDatabase(app);
+
+        // -------------------------------------------------------------
+        // Funkcije za dodavanje podataka u Realtime Database
+        // -------------------------------------------------------------
+
+        // Primjer korištenja set() - "Stavi" podatke na određeno mjesto
+        function dodajKorisnika(userId, ime, email) {
+            const userRef = ref(database, 'korisnici/' + userId); // Putanja do korisnika
+            set(userRef, {
+                ime: ime,
+                email: email,
+                datumDodavanja: new Date().toISOString() // Trenutni datum i vrijeme
+            })
+            .then(() => {
+                logToOutput(`Korisnik ${ime} uspješno dodan/a ili ažuriran/a!`);
+            })
+            .catch((error) => {
+                logToOutput(`Greška pri dodavanju korisnika: ${error.message}`);
+                console.error("Greška pri dodavanju korisnika: ", error);
+            });
+        }
+
+        // Primjer korištenja push() - "Dodaj novi" podatak s automatskim ID-em
+        function dodajNovuPoruku(autor, tekst) {
+            const porukeRef = ref(database, 'poruke'); // Putanja do liste poruka
+            push(porukeRef, {
+                autor: autor,
+                tekst: tekst,
+                vrijeme: new Date().toISOString() // Trenutni datum i vrijeme
+            })
+            .then((novaPorukaRef) => {
+                logToOutput(`Nova poruka uspješno dodana s ID-em: ${novaPorukaRef.key}`);
+            })
+            .catch((error) => {
+                logToOutput(`Greška pri dodavanju poruke: ${error.message}`);
+                console.error("Greška pri dodavanju poruke: ", error);
+            });
+        }
+
+        // Povezivanje funkcija s gumbima
+        document.getElementById('addUserData').addEventListener('click', () => {
+            logToOutput('Pokušavam dodati korisnika...');
+            dodajKorisnika('testUser1', 'Ivo Ivic', 'ivo.ivic@primjer.com');
+        });
+
+        document.getElementById('addMessageData').addEventListener('click', () => {
+            logToOutput('Pokušavam dodati poruku...');
+            dodajNovuPoruku('Marija', 'Ovo je testna poruka iz HTML-a!');
+        });
+
+        logToOutput('Firebase aplikacija i Realtime Database su inicijalizirani.');
+
+    </script>
+</body>
+</html>
