@@ -1,436 +1,512 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Student Marketplace | Knjige, oglasi & recenzije</title>
-  <!-- TailwindCSS + DaisyUI (stilizirano sučelje) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.css" rel="stylesheet" type="text/css" />
-  <!-- Font Awesome (za ikone) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Firebase SDK (spremanje podataka) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-  <style>
-    /* dodatni custom styling za bolje korisničko iskustvo */
-    .card-hover {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
-    }
-    .animate-fade {
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-    /* responzivni dodatak */
-    @media (max-width: 640px) {
-      .grid-cols-responsive {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body class="bg-gradient-to-br from-slate-50 to-indigo-50 min-h-screen font-sans">
-
-  <!-- Glavni app container -->
-  <div id="app" class="container mx-auto px-4 py-6 max-w-7xl">
-    <!-- Header / Naslov -->
-    <div class="text-center mb-8">
-      <div class="badge badge-primary badge-lg mb-2">📚 Student Marketplace</div>
-      <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-700">Knjižni Oglasi</h1>
-      <p class="text-gray-600 mt-2">Prodaj, kupuj, recenziraj knjige među studentima</p>
-    </div>
-
-    <!-- TABS: Oglasi / Dodaj oglas / Moje recenzije (svi oglasi i recenzije zajedno) -->
-    <div role="tablist" class="tabs tabs-boxed bg-white/60 shadow-sm rounded-xl p-1 mb-6 flex flex-wrap gap-1 justify-center">
-      <button @click="activeTab = 'listings'" :class="{'tab-active bg-indigo-600 text-white shadow': activeTab === 'listings'}" class="tab flex-1 sm:flex-none transition-all">📖 Svi oglasi</button>
-      <button @click="activeTab = 'create'" :class="{'tab-active bg-indigo-600 text-white shadow': activeTab === 'create'}" class="tab flex-1 sm:flex-none transition-all">➕ Novi oglas</button>
-      <button @click="activeTab = 'reviews'" :class="{'tab-active bg-indigo-600 text-white shadow': activeTab === 'reviews'}" class="tab flex-1 sm:flex-none transition-all">⭐ Recenzije knjiga</button>
-    </div>
-
-    <!-- SADRŽAJ OVISNO O TABU -->
-    <div class="transition-all duration-200">
-      <!-- TAB: SVI OGLASI (popis knjiga na prodaju) -->
-      <div v-if="activeTab === 'listings'" class="animate-fade">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
-          <div class="relative w-full md:w-80">
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input type="text" v-model="searchQuery" placeholder="Pretraži naslov ili autora..." class="input input-bordered w-full pl-10 rounded-full bg-white">
-          </div>
-          <div class="text-sm text-gray-500">📌 Ukupno oglasa: {{ filteredListings.length }}</div>
-        </div>
-
-        <div v-if="loadingListings" class="flex justify-center py-12">
-          <span class="loading loading-spinner loading-lg text-indigo-500"></span>
-        </div>
-        <div v-else-if="filteredListings.length === 0" class="text-center py-16 bg-white rounded-2xl shadow-sm">
-          <i class="fas fa-book-open text-5xl text-gray-300 mb-3"></i>
-          <p class="text-gray-500">Trenutno nema oglasa. Budi prvi koji će nešto prodati! ➕</p>
-        </div>
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="item in filteredListings" :key="item.id" class="card bg-white shadow-xl rounded-2xl overflow-hidden card-hover border border-gray-100">
-            <div class="p-5">
-              <div class="flex justify-between items-start">
-                <div>
-                  <span class="badge badge-outline badge-sm text-indigo-600 border-indigo-300">{{ item.category || 'Knjiga' }}</span>
-                  <span class="badge badge-ghost badge-sm ml-2">{{ item.condition || 'Polovno' }}</span>
-                </div>
-                <div class="text-xl font-bold text-indigo-700">{{ item.price }} €</div>
-              </div>
-              <h3 class="text-xl font-bold mt-2 line-clamp-1">{{ item.title }}</h3>
-              <p class="text-sm text-gray-500 mt-1"><i class="fas fa-user-graduate"></i> {{ item.sellerName || 'Anonimni student' }}</p>
-              <p class="text-gray-600 mt-3 text-sm line-clamp-3">{{ item.description }}</p>
-              <div class="divider my-3"></div>
-              <div class="flex justify-between items-center">
-                <button @click="openReviewModal(item)" class="btn btn-xs btn-outline btn-primary gap-1"><i class="fas fa-star"></i> Recenziraj</button>
-                <span class="text-xs text-gray-400"><i class="far fa-calendar-alt"></i> {{ formatDate(item.createdAt) }}</span>
-              </div>
-              <!-- prikaži prosječnu ocjenu knjige ako postoji -->
-              <div v-if="getBookRating(item.title) > 0" class="mt-2 text-xs flex items-center gap-1 text-amber-500">
-                <i class="fas fa-star"></i> Ocjena: {{ getBookRating(item.title).toFixed(1) }} / 5 ({{ getReviewCount(item.title) }})
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: DODAVANJE NOVOG OGLASA (prodaja knjige) -->
-      <div v-if="activeTab === 'create'" class="animate-fade max-w-3xl mx-auto">
-        <div class="card bg-white shadow-xl rounded-2xl p-6 md:p-8">
-          <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-plus-circle text-indigo-500"></i> Dodaj oglas za knjigu</h2>
-          <p class="text-gray-500 mb-6">Podijeli knjigu koju želiš prodati – ostali studenti mogu te kontaktirati.</p>
-          <form @submit.prevent="submitListing">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="form-control w-full">
-                <label class="label"><span class="label-text font-semibold">Naslov knjige *</span></label>
-                <input v-model="newListing.title" type="text" placeholder="npr. Čisti kod" class="input input-bordered" required />
-              </div>
-              <div class="form-control w-full">
-                <label class="label"><span class="label-text font-semibold">Autor</span></label>
-                <input v-model="newListing.author" type="text" placeholder="Robert C. Martin" class="input input-bordered" />
-              </div>
-              <div class="form-control w-full">
-                <label class="label"><span class="label-text font-semibold">Cijena (€) *</span></label>
-                <input v-model.number="newListing.price" type="number" step="0.5" min="0" placeholder="npr. 12" class="input input-bordered" required />
-              </div>
-              <div class="form-control w-full">
-                <label class="label"><span class="label-text font-semibold">Stanje</span></label>
-                <select v-model="newListing.condition" class="select select-bordered">
-                  <option>Kao novo</option><option>Vrlo dobro</option><option>Čitano</option><option>Oštećeno</option>
-                </select>
-              </div>
-              <div class="form-control w-full md:col-span-2">
-                <label class="label"><span class="label-text font-semibold">Opis *</span></label>
-                <textarea v-model="newListing.description" rows="3" placeholder="Detalji o knjizi, zašto je korisna, kontakt..." class="textarea textarea-bordered" required></textarea>
-              </div>
-              <div class="form-control">
-                <label class="label"><span class="label-text">Kategorija</span></label>
-                <input v-model="newListing.category" placeholder="Programiranje, Matematika, Roman..." class="input input-bordered" />
-              </div>
-              <div class="form-control">
-                <label class="label"><span class="label-text">Tvoje ime / nadimak</span></label>
-                <input v-model="newListing.sellerName" placeholder="Ime studenta" class="input input-bordered" />
-              </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-3">
-              <button type="button" @click="resetForm" class="btn btn-ghost">Odustani</button>
-              <button type="submit" class="btn btn-primary gap-2"><i class="fas fa-paper-plane"></i> Objavi oglas</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- TAB: RECENZIJE (sve recenzije + mogućnost dodavanja recenzije bez oglasa) -->
-      <div v-if="activeTab === 'reviews'" class="animate-fade">
-        <div class="flex flex-wrap justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold"><i class="fas fa-star text-yellow-500"></i> Recenzije knjiga</h2>
-          <button @click="showReviewModalGlobal = true" class="btn btn-sm btn-outline btn-success gap-1"><i class="fas fa-pen"></i> Napiši recenziju</button>
-        </div>
-        <div v-if="loadingReviews" class="flex justify-center py-8"><span class="loading loading-spinner loading-md"></span></div>
-        <div v-else-if="allReviews.length === 0" class="text-center py-12 bg-white rounded-xl shadow"><i class="far fa-comment-dots text-4xl text-gray-300"></i><p class="mt-2">Još nema recenzija. Budi prvi koji će ocijeniti knjigu!</p></div>
-        <div v-else class="space-y-4">
-          <div v-for="rev in allReviews" :key="rev.id" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-l-amber-400">
-            <div class="flex justify-between flex-wrap items-start gap-2">
-              <div>
-                <h3 class="text-lg font-bold">{{ rev.bookTitle }}</h3>
-                <div class="rating rating-sm">
-                  <span v-for="star in 5" :key="star" class="cursor-default">
-                    <i :class="star <= rev.rating ? 'fas fa-star text-yellow-500' : 'far fa-star text-gray-300'"></i>
-                  </span>
-                  <span class="ml-2 text-sm text-gray-500">({{ rev.rating }}/5)</span>
-                </div>
-              </div>
-              <span class="text-xs text-gray-400">{{ formatDate(rev.createdAt) }}</span>
-            </div>
-            <p class="text-gray-700 mt-2 italic">“{{ rev.comment }}”</p>
-            <p class="text-xs text-gray-400 mt-2 flex items-center gap-1"><i class="fas fa-user-edit"></i> {{ rev.reviewerName || 'Student' }}</p>
-          </div>
-        </div>
-
-        <!-- Modal za globalnu recenziju (van oglasa) -->
-        <div v-if="showReviewModalGlobal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showReviewModalGlobal = false">
-          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <h3 class="text-xl font-bold mb-3">Dodaj recenziju knjige</h3>
-            <input v-model="globalReview.bookTitle" placeholder="Naslov knjige *" class="input input-bordered w-full mb-3" />
-            <select v-model="globalReview.rating" class="select select-bordered w-full mb-3">
-              <option disabled value="">Ocjena (1-5)</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-            </select>
-            <textarea v-model="globalReview.comment" rows="3" placeholder="Tvoje mišljenje o knjizi..." class="textarea textarea-bordered w-full mb-3"></textarea>
-            <input v-model="globalReview.reviewerName" placeholder="Tvoje ime (opcionalno)" class="input input-bordered w-full mb-4" />
-            <div class="flex justify-end gap-2">
-              <button @click="showReviewModalGlobal = false" class="btn btn-ghost">Odustani</button>
-              <button @click="submitGlobalReview" class="btn btn-primary">Objavi recenziju</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal za recenziju iz oglasa (brza recenzija) -->
-    <div v-if="reviewModalForListing" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="reviewModalForListing = null">
-      <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <h3 class="text-xl font-bold">Recenziraj: “{{ selectedListing?.title }}”</h3>
-        <div class="form-control mt-3">
-          <label class="label">Tvoja ocjena *</label>
-          <div class="rating rating-lg">
-            <span v-for="r in 5" :key="r" @click="tempRating = r" class="cursor-pointer text-3xl" :class="tempRating >= r ? 'text-yellow-500' : 'text-gray-300'">★</span>
-          </div>
-        </div>
-        <textarea v-model="tempComment" class="textarea textarea-bordered mt-3" rows="3" placeholder="Komentar (npr. super knjiga za ispit...)"></textarea>
-        <input v-model="tempReviewer" placeholder="Tvoje ime" class="input input-bordered w-full mt-3" />
-        <div class="modal-action mt-4">
-          <button @click="submitReviewFromListing" class="btn btn-primary w-full">Pošalji recenziju</button>
-          <button @click="reviewModalForListing = null" class="btn btn-outline">Zatvori</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Firebase konfiguracija (Demo projekt - koristim javnu test bazu, ali prema pravilima je to Firebase integracija)
-    // Koristimo Firestore za čuvanje listinga i recenzija, demonstracija spremanja podataka i manipulacije DOM-a.
-    const firebaseConfig = {
-      apiKey: "AIzaSyDzkcE3kEdQTbK9R-bplPBFiYAb9SPsKvU",
-      authDomain: "student-marketplace-4e9d7.firebaseapp.com",
-      projectId: "student-marketplace-4e9d7",
-      storageBucket: "student-marketplace-4e9d7.appspot.com",
-      messagingSenderId: "1094874652842",
-      appId: "1:1094874652842:web:ac8f5a4e2d8f3b7c9e0f1a"
-    };
-    // Inicijalizacija firebase (provjera)
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // Vue app
-    const { createApp, ref, onMounted, computed } = Vue;
-
-    createApp({
-      setup() {
-        // State
-        const activeTab = ref('listings');
-        const listings = ref([]);
-        const allReviews = ref([]);
-        const loadingListings = ref(true);
-        const loadingReviews = ref(true);
-        const searchQuery = ref('');
-        
-        // New listing form
-        const newListing = ref({
-          title: '', author: '', price: 0, condition: 'Polovno', description: '', category: '', sellerName: ''
-        });
-        
-        // Recenzije modali
-        const reviewModalForListing = ref(null);
-        const selectedListing = ref(null);
-        const tempRating = ref(5);
-        const tempComment = ref('');
-        const tempReviewer = ref('');
-        const showReviewModalGlobal = ref(false);
-        const globalReview = ref({ bookTitle: '', rating: 5, comment: '', reviewerName: '' });
-
-        // Pomocne funkcije
-        const formatDate = (timestamp) => {
-          if (!timestamp) return 'nedavno';
-          const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-          return date.toLocaleDateString('hr-HR');
-        };
-
-        // Dohvati oglase iz Firestore (metoda spremanja podataka)
-        const fetchListings = async () => {
-          loadingListings.value = true;
-          try {
-            const snapshot = await db.collection('bookListings').orderBy('createdAt', 'desc').get();
-            listings.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAt: doc.data().createdAt || new Date() }));
-          } catch (err) {
-            console.error(err);
-            // demo fallback - u slučaju greške postavi primjer podataka (pošto nema baze)
-            if(listings.value.length === 0) {
-              listings.value = [
-                { id: '1', title: 'Čisti kod', author: 'R.Martin', price: 15, condition: 'Kao novo', description: 'Obavezna literatura za programere', sellerName: 'Ivan', category: 'Programiranje', createdAt: new Date() },
-                { id: '2', title: 'JavaScript: The Good Parts', price: 10, condition: 'Vrlo dobro', description: 'Mala knjiga za JS entuzijaste', sellerName: 'Ana', category: 'Web dev', createdAt: new Date() }
-              ];
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Student Marketplace | Knjige za prodaju - Firebase Realtime DB</title>
+    <!-- TailwindCSS + DaisyUI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.css" rel="stylesheet" type="text/css" />
+    <!-- Firebase SDK (modular) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+                "firebase/database": "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
             }
-          } finally {
-            loadingListings.value = false;
-          }
+        }
+    </script>
+    <style>
+        .card-hover:hover { transform: translateY(-4px); transition: all 0.2s ease; }
+        .toast-notify { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-100">
+
+    <div id="app" class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        
+        <!-- HEADER -->
+        <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6 gap-3 bg-white p-4 rounded-xl shadow-sm">
+            <div class="flex items-center gap-2">
+                <div class="text-3xl">📚</div>
+                <h1 class="text-2xl font-bold text-gray-800">Student Marketplace</h1>
+                <span class="badge badge-primary badge-sm ml-2">Knjige + recenzije</span>
+            </div>
+            <div id="auth-section" class="flex gap-3 items-center">
+                <div id="userInfoPlaceholder" class="text-sm font-medium"></div>
+                <button id="loginBtn" class="btn btn-primary btn-sm">🔐 Prijava</button>
+                <button id="logoutBtn" class="btn btn-outline btn-sm hidden">🚪 Odjava</button>
+            </div>
+        </div>
+
+        <div id="toastContainer" class="toast-notify"></div>
+
+        <!-- PRIJAVA MODAL -->
+        <dialog id="authModal" class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg mb-4">Prijava / Registracija</h3>
+                <input type="email" id="loginEmail" placeholder="Email" class="input input-bordered w-full mb-3" />
+                <input type="password" id="loginPassword" placeholder="Lozinka (min 6 znakova)" class="input input-bordered w-full mb-4" />
+                <div class="flex justify-between gap-2">
+                    <button id="modalLoginAction" class="btn btn-primary flex-1">Prijavi se</button>
+                    <button id="modalRegisterAction" class="btn btn-secondary flex-1">Registriraj se</button>
+                    <button id="closeModalBtn" class="btn btn-ghost">Zatvori</button>
+                </div>
+                <div id="authErrorMsg" class="text-error text-sm mt-2 hidden"></div>
+                <p class="text-xs text-gray-500 mt-4">💡 Uputa: Prvo omogući Email/Password authentication u Firebase konzoli!</p>
+            </div>
+        </dialog>
+
+        <!-- DODAVANJE KNJIGE (samo prijavljeni) -->
+        <div id="addBookPanel" class="bg-white rounded-xl shadow-md p-5 mb-8 hidden border border-gray-200">
+            <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">📖 Prodaj svoju knjigu</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="bookTitle" placeholder="Naslov knjige *" class="input input-bordered w-full" />
+                <input type="text" id="bookAuthor" placeholder="Autor *" class="input input-bordered w-full" />
+                <input type="number" id="bookPrice" placeholder="Cijena (€) *" class="input input-bordered w-full" step="0.01" />
+                <input type="text" id="bookImage" placeholder="URL slike (opcionalno)" class="input input-bordered w-full" />
+                <textarea id="bookDesc" placeholder="Opis knjige..." class="textarea textarea-bordered md:col-span-2" rows="2"></textarea>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button id="submitBookBtn" class="btn btn-success">💰 Objavi knjigu za prodaju</button>
+            </div>
+        </div>
+
+        <!-- FILTER I SORTIRANJE -->
+        <div class="flex flex-wrap gap-3 justify-between items-center my-6 bg-white p-3 rounded-lg shadow-sm">
+            <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium">🔍 Pretraži:</span>
+                <input type="text" id="searchInput" placeholder="Naslov ili autor" class="input input-bordered input-sm w-48" />
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium">Sortiraj:</span>
+                <select id="sortSelect" class="select select-bordered select-sm">
+                    <option value="default">Zadano</option>
+                    <option value="price_asc">Cijena rastuće</option>
+                    <option value="price_desc">Cijena padajuće</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- GRID KNJIGA -->
+        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-12">Učitavanje knjiga... <div class="loading-spinner ml-2"></div></div>
+        </div>
+
+        <!-- MODAL ZA RECENZIJE -->
+        <dialog id="reviewModal" class="modal">
+            <div class="modal-box max-w-lg">
+                <h3 id="reviewModalTitle" class="font-bold text-lg">Recenzije za knjigu</h3>
+                <div id="reviewsList" class="mt-3 max-h-60 overflow-y-auto border rounded p-2 bg-gray-50"></div>
+                <div class="mt-4" id="addReviewSection">
+                    <textarea id="newReviewText" rows="2" placeholder="Napiši svoju recenziju..." class="textarea textarea-bordered w-full"></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <div class="rating rating-sm" id="ratingStars">
+                            <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" checked />
+                        </div>
+                        <button id="submitReviewBtn" class="btn btn-primary btn-sm">Dodaj recenziju</button>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button id="closeReviewModal" class="btn">Zatvori</button>
+                </div>
+            </div>
+        </dialog>
+    </div>
+
+    <script type="module">
+        // ========== TVOJA FIREBASE KONFIGURACIJA ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
+            authDomain: "zavrsnipetradaniela.firebaseapp.com",
+            databaseURL: "https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "zavrsnipetradaniela",
+            storageBucket: "zavrsnipetradaniela.firebasestorage.app",
+            messagingSenderId: "1016932466553",
+            appId: "1:1016932466553:web:994b6d55d4d04efa8939a8",
+            measurementId: "G-B7ZB4CZJK4"
         };
         
-        const fetchReviews = async () => {
-          loadingReviews.value = true;
-          try {
-            const snap = await db.collection('bookReviews').orderBy('createdAt', 'desc').get();
-            allReviews.value = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAt: doc.data().createdAt || new Date() }));
-          } catch(e) {
-            allReviews.value = [];
-          } finally {
-            loadingReviews.value = false;
-          }
-        };
+        // Učitavanje Firebase modula
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+        import { getDatabase, ref, set, get, push, onValue } from "firebase/database";
         
-        // Submit novi oglas (Firestore)
-        const submitListing = async () => {
-          if(!newListing.value.title || !newListing.value.description || newListing.value.price <= 0) {
-            alert("Molimo popunite naslov, opis i cijenu.");
-            return;
-          }
-          const listingData = {
-            title: newListing.value.title,
-            author: newListing.value.author || 'Nepoznat',
-            price: newListing.value.price,
-            condition: newListing.value.condition,
-            description: newListing.value.description,
-            category: newListing.value.category || 'Ostalo',
-            sellerName: newListing.value.sellerName || 'Student',
-            createdAt: new Date(),
-          };
-          try {
-            const docRef = await db.collection('bookListings').add(listingData);
-            listings.value.unshift({ id: docRef.id, ...listingData });
-            resetForm();
-            activeTab.value = 'listings';
-          } catch(err) {
-            alert("Greška pri spremanju: " + err.message);
-            // offline fallback: lokalno dodaj
-            listings.value.unshift({ id: Date.now().toString(), ...listingData });
-            resetForm();
-          }
-        };
+        // Inicijalizacija
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
         
-        const resetForm = () => {
-          newListing.value = { title: '', author: '', price: 0, condition: 'Polovno', description: '', category: '', sellerName: '' };
-        };
+        // DOM elementi
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authModal = document.getElementById('authModal');
+        const modalLoginAction = document.getElementById('modalLoginAction');
+        const modalRegisterAction = document.getElementById('modalRegisterAction');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const userInfoPlaceholder = document.getElementById('userInfoPlaceholder');
+        const addBookPanel = document.getElementById('addBookPanel');
+        const submitBookBtn = document.getElementById('submitBookBtn');
+        const booksGrid = document.getElementById('booksGrid');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const reviewModal = document.getElementById('reviewModal');
+        const reviewsListDiv = document.getElementById('reviewsList');
+        const submitReviewBtn = document.getElementById('submitReviewBtn');
+        const newReviewText = document.getElementById('newReviewText');
+        const closeReviewModal = document.getElementById('closeReviewModal');
+        const authErrorMsg = document.getElementById('authErrorMsg');
         
-        // Recenzije: otvori modal iz oglasa
-        const openReviewModal = (listing) => {
-          selectedListing.value = listing;
-          tempRating.value = 5;
-          tempComment.value = '';
-          tempReviewer.value = '';
-          reviewModalForListing.value = true;
-        };
+        let currentUser = null;
+        let currentBookId = null;
+        let allBooks = [];
         
-        // Slanje recenzije s vezom na knjigu (naslov)
-        const submitReviewFromListing = async () => {
-          if (!selectedListing.value) return;
-          const reviewData = {
-            bookTitle: selectedListing.value.title,
-            rating: tempRating.value,
-            comment: tempComment.value || 'Korisna knjiga za studente!',
-            reviewerName: tempReviewer.value || 'Anonimni student',
-            createdAt: new Date(),
-            linkedListingId: selectedListing.value.id
-          };
-          try {
-            const docR = await db.collection('bookReviews').add(reviewData);
-            allReviews.value.unshift({ id: docR.id, ...reviewData });
-            reviewModalForListing.value = null;
-          } catch(e) {
-            allReviews.value.unshift({ id: Date.now().toString(), ...reviewData });
-            reviewModalForListing.value = null;
-          }
-        };
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'error' : 'success'} shadow-lg mb-2`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
         
-        const submitGlobalReview = async () => {
-          if (!globalReview.value.bookTitle || !globalReview.value.rating) {
-            alert("Naslov knjige i ocjena su obavezni!");
-            return;
-          }
-          const newRev = {
-            bookTitle: globalReview.value.bookTitle,
-            rating: parseInt(globalReview.value.rating),
-            comment: globalReview.value.comment || "Solidna knjiga.",
-            reviewerName: globalReview.value.reviewerName || "Student",
-            createdAt: new Date()
-          };
-          try {
-            const refDoc = await db.collection('bookReviews').add(newRev);
-            allReviews.value.unshift({ id: refDoc.id, ...newRev });
-          } catch(err) {
-            allReviews.value.unshift({ id: Date.now().toString(), ...newRev });
-          }
-          showReviewModalGlobal.value = false;
-          globalReview.value = { bookTitle: '', rating: 5, comment: '', reviewerName: '' };
-        };
+        function escapeHtml(str) {
+            if(!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                return m;
+            });
+        }
         
-        // Izračun prosječne ocjene knjige za prikaz na oglasu
-        const getBookRating = (title) => {
-          const relevant = allReviews.value.filter(r => r.bookTitle?.toLowerCase() === title?.toLowerCase());
-          if(relevant.length === 0) return 0;
-          const sum = relevant.reduce((acc,curr) => acc + (curr.rating || 0), 0);
-          return sum / relevant.length;
-        };
-        const getReviewCount = (title) => {
-          return allReviews.value.filter(r => r.bookTitle?.toLowerCase() === title?.toLowerCase()).length;
-        };
+        function renderStaticStars(rating) {
+            let stars = '';
+            for(let i = 1; i <= 5; i++) {
+                stars += `<input type="radio" name="rating-static" disabled ${i <= Math.floor(rating) ? 'checked' : ''} class="mask mask-star-2 bg-orange-400" />`;
+            }
+            return stars;
+        }
         
-        // Filter oglasa prema naslovu/autoru
-        const filteredListings = computed(() => {
-          if(!searchQuery.value) return listings.value;
-          const q = searchQuery.value.toLowerCase();
-          return listings.value.filter(l => l.title?.toLowerCase().includes(q) || (l.author && l.author.toLowerCase().includes(q)));
+        // Učitavanje knjiga iz Realtime Database
+        function loadBooks() {
+            const booksRef = ref(db, 'books');
+            onValue(booksRef, (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    allBooks = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                } else {
+                    allBooks = [];
+                }
+                renderBooks();
+            }, (error) => {
+                console.error("Greška pri učitavanju knjiga:", error);
+                showToast("Greška pri učitavanju knjiga: " + error.message, "error");
+            });
+        }
+        
+        function renderBooks() {
+            let filtered = [...allBooks];
+            const searchTerm = searchInput.value.toLowerCase();
+            if(searchTerm) {
+                filtered = filtered.filter(book => 
+                    book.title?.toLowerCase().includes(searchTerm) || 
+                    book.author?.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            const sortVal = sortSelect.value;
+            if(sortVal === 'price_asc') filtered.sort((a,b) => (a.price||0) - (b.price||0));
+            if(sortVal === 'price_desc') filtered.sort((a,b) => (b.price||0) - (a.price||0));
+            
+            if(filtered.length === 0) {
+                booksGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl shadow">📭 Trenutno nema knjiga. Budi prvi koji će prodati knjigu!</div>`;
+                return;
+            }
+            
+            booksGrid.innerHTML = filtered.map(book => {
+                const reviews = book.reviews ? Object.values(book.reviews) : [];
+                const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + (r.rating||0), 0) / reviews.length).toFixed(1) : 'Nema';
+                const reviewCount = reviews.length;
+                return `
+                    <div class="card card-compact bg-white shadow-lg rounded-xl overflow-hidden transition-all card-hover border border-gray-200">
+                        <figure class="h-48 bg-gray-100">
+                            <img src="${book.imageUrl || 'https://placehold.co/400x300?text=Book+Cover'}" alt="${book.title}" class="object-cover w-full h-full" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                        </figure>
+                        <div class="card-body">
+                            <h2 class="card-title text-lg font-bold">${escapeHtml(book.title)}</h2>
+                            <p class="text-sm text-gray-500">Autor: ${escapeHtml(book.author)}</p>
+                            <p class="text-md font-semibold text-primary">💰 ${book.price} €</p>
+                            <p class="text-sm text-gray-600 line-clamp-2">${escapeHtml(book.description?.substring(0,80) || 'Opis nije dostupan')}</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="flex items-center gap-1 text-sm">
+                                    <div class="rating rating-xs">${avgRating !== 'Nema' ? renderStaticStars(parseFloat(avgRating)) : '⭐ Nema ocjena'}</div>
+                                    <span>(${reviewCount})</span>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn btn-xs btn-outline btn-info review-btn" data-id="${book.id}">📝 Recenzije</button>
+                                    <button class="btn btn-xs btn-success buy-btn" data-id="${book.id}" data-title="${escapeHtml(book.title)}" data-price="${book.price}">🛒 Kupi</button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Prodavač: ${escapeHtml(book.sellerEmail || 'anonimno')}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.querySelectorAll('.review-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = btn.getAttribute('data-id');
+                    openReviewModal(id);
+                });
+            });
+            document.querySelectorAll('.buy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if(!currentUser) { showToast("❌ Morate se prijaviti za kupnju!", "error"); return; }
+                    const title = btn.getAttribute('data-title');
+                    const price = btn.getAttribute('data-price');
+                    showToast(`✅ Kupili ste knjigu "${title}" za ${price} €! Hvala na kupnji.`, "success");
+                });
+            });
+        }
+        
+        async function openReviewModal(bookId) {
+            currentBookId = bookId;
+            const bookRef = ref(db, `books/${bookId}`);
+            const snapshot = await get(bookRef);
+            const book = snapshot.val();
+            if(!book) return;
+            
+            document.getElementById('reviewModalTitle').innerHTML = `Recenzije za: ${escapeHtml(book.title)}`;
+            const reviews = book.reviews ? Object.values(book.reviews) : [];
+            if(reviews.length === 0) {
+                reviewsListDiv.innerHTML = '<p class="text-gray-500 italic">📭 Još nema recenzija, budi prvi!</p>';
+            } else {
+                reviewsListDiv.innerHTML = reviews.map(rev => `
+                    <div class="border-b py-2">
+                        <div class="flex items-center gap-2">
+                            <div class="rating rating-xs">${renderStaticStars(rev.rating)}</div>
+                            <span class="text-xs font-semibold">${escapeHtml(rev.userEmail)}</span>
+                            <span class="text-xs text-gray-400">${new Date(rev.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-sm mt-1">${escapeHtml(rev.text)}</p>
+                    </div>
+                `).join('');
+            }
+            
+            if(currentUser) {
+                document.getElementById('addReviewSection').style.display = 'block';
+            } else {
+                document.getElementById('addReviewSection').style.display = 'none';
+            }
+            reviewModal.showModal();
+        }
+        
+        async function addNewBook() {
+            if(!currentUser) { showToast("❌ Morate se prijaviti za prodaju!", "error"); return; }
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const price = parseFloat(document.getElementById('bookPrice').value);
+            const imageUrl = document.getElementById('bookImage').value.trim();
+            const description = document.getElementById('bookDesc').value.trim();
+            
+            if(!title || !author || isNaN(price) || price <= 0) {
+                showToast("⚠️ Molimo ispunite naslov, autora i cijenu (>0)", "error");
+                return;
+            }
+            
+            try {
+                const newBookRef = push(ref(db, 'books'));
+                await set(newBookRef, {
+                    title, author, price, 
+                    imageUrl: imageUrl || null,
+                    description: description || "Bez opisa",
+                    sellerEmail: currentUser.email,
+                    sellerId: currentUser.uid,
+                    createdAt: Date.now(),
+                    reviews: {}
+                });
+                showToast("📖 Knjiga uspješno dodana u prodaju!");
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookAuthor').value = '';
+                document.getElementById('bookPrice').value = '';
+                document.getElementById('bookImage').value = '';
+                document.getElementById('bookDesc').value = '';
+            } catch(e) {
+                showToast("❌ Greška: " + e.message, "error");
+            }
+        }
+        
+        async function addReview() {
+            if(!currentUser) { showToast("❌ Prijavite se za ostavljanje recenzije", "error"); return; }
+            if(!currentBookId) return;
+            const reviewText = newReviewText.value.trim();
+            if(!reviewText) { showToast("⚠️ Napišite recenziju", "error"); return; }
+            
+            let selectedRating = 5;
+            const radioSelected = document.querySelector('input[name="rating"]:checked');
+            if(radioSelected) selectedRating = parseInt(radioSelected.value);
+            
+            try {
+                const reviewId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const reviewRef = ref(db, `books/${currentBookId}/reviews/${reviewId}`);
+                await set(reviewRef, {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    text: reviewText,
+                    rating: selectedRating,
+                    timestamp: Date.now()
+                });
+                showToast("⭐ Recenzija dodana!");
+                newReviewText.value = '';
+                document.querySelectorAll('input[name="rating"]')[4].checked = true;
+                reviewModal.close();
+            } catch(e) {
+                showToast("❌ Greška: " + e.message, "error");
+            }
+        }
+        
+        // AUTH FUNKCIJE
+        async function handleLogin(email, password) {
+            authErrorMsg.classList.add('hidden');
+            try {
+                const userCred = await signInWithEmailAndPassword(auth, email, password);
+                showToast(`👋 Dobrodošli, ${userCred.user.email}!`);
+                authModal.close();
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            } catch(error) {
+                console.error("Login error:", error);
+                let errorMessage = "";
+                switch(error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = "❌ Neispravan format emaila!";
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = "❌ Korisnički račun je onemogućen!";
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = "❌ Korisnik ne postoji. Molimo registrirajte se!";
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = "❌ Pogrešna lozinka!";
+                        break;
+                    default:
+                        errorMessage = "❌ Greška: " + error.message;
+                }
+                authErrorMsg.textContent = errorMessage;
+                authErrorMsg.classList.remove('hidden');
+                showToast(errorMessage, "error");
+            }
+        }
+        
+        async function handleRegister(email, password) {
+            authErrorMsg.classList.add('hidden');
+            if(password.length < 6) {
+                const msg = "⚠️ Lozinka mora imati najmanje 6 znakova!";
+                authErrorMsg.textContent = msg;
+                authErrorMsg.classList.remove('hidden');
+                showToast(msg, "error");
+                return;
+            }
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                showToast(`✅ Registracija uspješna! Dobrodošli, ${userCred.user.email}!`);
+                authModal.close();
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            } catch(error) {
+                console.error("Registration error:", error);
+                let errorMessage = "";
+                switch(error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = "❌ Email već postoji, pokušajte se prijaviti!";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "❌ Neispravan format emaila!";
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = "❌ Lozinka je preslaba! Koristite minimalno 6 znakova.";
+                        break;
+                    default:
+                        errorMessage = "❌ Greška: " + error.message;
+                }
+                authErrorMsg.textContent = errorMessage;
+                authErrorMsg.classList.remove('hidden');
+                showToast(errorMessage, "error");
+            }
+        }
+        
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if(user) {
+                userInfoPlaceholder.innerHTML = `👋 ${user.email}`;
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                addBookPanel.classList.remove('hidden');
+                showToast(`✅ Prijavljeni ste kao ${user.email}`, "success");
+            } else {
+                userInfoPlaceholder.innerHTML = '👤 Neprijavljen';
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                addBookPanel.classList.add('hidden');
+            }
         });
         
-        // Učitavanje inicijalno
-        onMounted(() => {
-          fetchListings();
-          fetchReviews();
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            showToast("🚪 Odjavljeni ste");
         });
         
-        return {
-          activeTab,
-          listings,
-          allReviews,
-          loadingListings,
-          loadingReviews,
-          searchQuery,
-          newListing,
-          reviewModalForListing,
-          selectedListing,
-          tempRating,
-          tempComment,
-          tempReviewer,
-          showReviewModalGlobal,
-          globalReview,
-          formatDate,
-          submitListing,
-          resetForm,
-          openReviewModal,
-          submitReviewFromListing,
-          submitGlobalReview,
-          getBookRating,
-          getReviewCount,
-          filteredListings
-        };
-      }
-    }).mount('#app');
-  </script>
-  <!-- Vue CDN -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        loginBtn.addEventListener('click', () => {
+            authErrorMsg.classList.add('hidden');
+            authModal.showModal();
+        });
+        closeModalBtn.addEventListener('click', () => authModal.close());
+        modalLoginAction.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const pwd = document.getElementById('loginPassword').value;
+            if(email && pwd) handleLogin(email, pwd);
+            else {
+                const msg = "⚠️ Unesite email i lozinku";
+                authErrorMsg.textContent = msg;
+                authErrorMsg.classList.remove('hidden');
+                showToast(msg, "error");
+            }
+        });
+        modalRegisterAction.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const pwd = document.getElementById('loginPassword').value;
+            if(email && pwd) handleRegister(email, pwd);
+            else {
+                const msg = "⚠️ Unesite email i lozinku (min 6 znakova)";
+                authErrorMsg.textContent = msg;
+                authErrorMsg.classList.remove('hidden');
+                showToast(msg, "error");
+            }
+        });
+        
+        submitBookBtn.addEventListener('click', addNewBook);
+        submitReviewBtn.addEventListener('click', addReview);
+        closeReviewModal.addEventListener('click', () => reviewModal.close());
+        searchInput.addEventListener('input', () => renderBooks());
+        sortSelect.addEventListener('change', () => renderBooks());
+        
+        // Inicijalno učitavanje podataka
+        loadBooks();
+        
+        console.log("✅ Aplikacija pokrenuta!");
+        showToast("🚀 Aplikacija je spremna! Prijavite se za prodaju i recenzije.", "success");
+    </script>
 </body>
 </html>
