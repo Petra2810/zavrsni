@@ -1,135 +1,132 @@
-// Dohvaćanje elementa za prikaz izlaza iz HTML-a
-const outputDiv = document.getElementById('output');
-
-/**
- * Prikazuje poruku u divu 'output' i u konzoli preglednika.
- * Ograničava broj poruka u divu da spriječi preopterećenje.
- * @param {string} message Poruka za prikaz.
- */
-function logToOutput(message) {
-    // Kreira novi <p> element za svaku poruku
-    const pElement = document.createElement('p');
-    pElement.textContent = message;
-    outputDiv.appendChild(pElement);
-
-    // Ograničava broj prikazanih poruka na 10, uklanjajući najstarije
-    if (outputDiv && outputDiv.children.length > 10) {
-        outputDiv.removeChild(outputDiv.firstElementChild);
-    }
-    // Automatsko skrolanje na dno div-a za prikaz najnovijih poruka
-    outputDiv.scrollTop = outputDiv.scrollHeight;
-    console.log(message); // Uvijek logiramo i u konzolu preglednika
-}
-
-// Import potrebnih funkcija iz Firebase SDK-a
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import {
-    getDatabase,     // Za dohvaćanje instance baze podataka
-    ref,             // Za kreiranje referenci na lokacije u bazi
-    set,             // Za pisanje/zamjenu podataka
-    push,            // Za dodavanje novih podataka s automatskim ID-em
-    onValue,         // Za slušanje promjena podataka u realnom vremenu
-    update,          // Za djelomično ažuriranje podataka
-    remove           // Za brisanje podataka
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
-// import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js"; // Zakomentirano ako se ne koristi
-
-// Tvoja web aplikacija's Firebase konfiguracija (preuzeta direktno iz tvog prijašnjeg upita)
-// PROVJERI DA SU OVI PODACI ISPRAVNI ZA TVOJ PROJEKT!
-const firebaseConfig = {
-    apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
-    authDomain: "zavrsnipetradaniela.firebaseapp.com",
-    databaseURL: "https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "zavrsnipetradaniela",
-    storageBucket: "zavrsnipetradaniela.firebasestorage.app",
-    messagingSenderId: "1016932466553",
-    appId: "1:1016932466553:web:994b6d55d4d04efa8939a8",
-    measurementId: "G-B7ZB4CZJK4"
-};
-
-// Inicijalizacija Firebase aplikacije
-const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app); // Inicijaliziraj ako koristiš Google Analytics
-
-// Dohvaćanje instance Firebase Realtime Database
-const database = getDatabase(app);
-
-// --- POMOĆNA KLASA/OBJEKT ZA KORISNIKA ---
-class Korisnik {
-    constructor(ime, email, dob = null, grad = null) {
-        this.ime = ime;
-        this.email = email;
-        if (dob !== null) this.dob = dob;
-        if (grad !== null) this.grad = grad;
-    }
-}
-
-// -------------------------------------------------------------
-// FUNKCIJE ZA CRUD OPERACIJE (Create, Read, Update, Delete)
-// -------------------------------------------------------------
-
-/**
- * Dodaje ili ažurira podatke na određenoj putanji u Realtime Databaseu koristeći `set()`.
- * Ako podaci već postoje na toj putanji, bit će zamijenjeni.
- * @param {string} putanja Putanja u bazi podataka (npr. 'korisnici/nekiId').
- * @param {object} podaci Objekt s podacima za spremanje.
- */
-function dodajIliAzurirajPodatak(putanja, podaci) {
-    const dataRef = ref(database, putanja);
-    set(dataRef, podaci)
-    .then(() => {
-        logToOutput(`[SET] Podatak na "${putanja}" uspješno dodan/ažuriran.`);
-    })
-    .catch((error) => {
-        logToOutput(`[SET GREŠKA] Pri dodavanju/ažuriranju na "${putanja}": ${error.message}`);
-        console.error("Firebase SET greška: ", error);
-    });
-}
-
-/**
- * Dodaje novi podatak u listu s automatski generiranim jedinstvenim ID-em koristeći `push()`.
- * Korisno za liste stavki gdje redoslijed i jedinstveni ID-evi nisu unaprijed poznati.
- * @param {string} putanja Putanja do liste (npr. 'poruke').
- * @param {object} podaci Objekt s podacima za novu stavku.
- */
-function dodajNoviPodatakSAutomatskimId(putanja, podaci) {
-    const listRef = ref(database, putanja);
-    const newRef = push(listRef); // Generira novi jedinstveni ključ
-    set(newRef, podaci)
-    .then(() => {
-        logToOutput(`[PUSH] Novi podatak dodan na "${putanja}" s ID-em: ${newRef.key}`);
-    })
-    .catch((error) => {
-        logToOutput(`[PUSH GREŠKA] Pri dodavanju novog podatka na "${putanja}": ${error.message}`);
-        console.error("Firebase PUSH greška: ", error);
-    });
-}
-
-/**
- * Sluša promjene podataka u realnom vremenu na određenoj putanji koristeći `onValue()`.
- * Funkcija se poziva odmah s početnim podacima, a zatim svaki put kada se podaci promijene.
- * @param {string} putanja Putanja u bazi podataka za slušanje (npr. 'korisnici').
- */
-function slusajPromjenePodataka(putanja) {
-    const dataRef = ref(database, putanja);
-    onValue(dataRef, (snapshot) => {
-        const podaci = snapshot.val(); // Dohvaća podatke
-        if (podaci) {
-            logToOutput(`[ONVALUE] Podaci s putanje "${putanja}" su se promijenili/dohvaćeni: ${JSON.stringify(podaci, null, 2)}`);
-        } else {
-            logToOutput(`[ONVALUE] Nema podataka na putanji: ${putanja} (ili su obrisani).`);
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>LibraMarket | Prodaja školskih knjiga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.css" rel="stylesheet" type="text/css" />
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+                "firebase/database": "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
+            }
         }
-    }, (error) => { // Greška se obrađuje kao zaseban callback za onValue
-        logToOutput(`[ONVALUE GREŠKA] Pri slušanju "${putanja}": ${error.message}`);
-        console.error("Firebase ONVALUE greška: ", error);
-    });
-    logToOutput(`Počelo slušanje promjenaNo response
-    na putanji: ${putanja}`);
-}
+    </script>
+    <style>
+        .card-hover:hover { transform: translateY(-4px); transition: all 0.2s ease; }
+        .toast-notify { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-100">
+    <!-- Navigacija za podstranice -->
+    <nav class="bg-white shadow-md p-4">
+        <div class="max-w-7xl mx-auto flex gap-6">
+            <a href="iprg.html" class="text-blue-600 font-bold">Početna</a>
+            <a href="ipr.html" class="text-gray-600 hover:text-blue-600">Marketplace Knjige</a>
+        </div>
+    </nav>
 
+    <div id="app" class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        
+        <!-- HEADER -->
+        <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6 gap-3 bg-white p-4 rounded-xl shadow-sm">
+            <div class="flex items-center gap-2">
+                <div class="text-3xl">📚</div>
+                <h1 class="text-2xl font-bold text-gray-800">LibraMarket</h1>
+                <span class="badge badge-primary badge-sm ml-2">Knjige + recenzije</span>
+            </div>
+            <div id="auth-section" class="flex gap-3 items-center">
+                <div id="userInfoPlaceholder" class="text-sm font-medium"></div>
+                <button id="loginBtn" class="btn btn-primary btn-sm">🔐 Prijava</button>
+                <button id="logoutBtn" class="btn btn-outline btn-sm hidden">🚪 Odjava</button>
+            </div>
+        </div>
 
-// script.js
+        <div id="toastContainer" class="toast-notify"></div>
 
+        <!-- PRIJAVA MODAL -->
+        <dialog id="authModal" class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg mb-4">Prijava / Registracija</h3>
+                <input type="email" id="loginEmail" placeholder="Email" class="input input-bordered w-full mb-3" />
+                <input type="password" id="loginPassword" placeholder="Lozinka (min 6 znakova)" class="input input-bordered w-full mb-4" />
+                <div class="flex flex-wrap gap-2">
+                    <button id="modalLoginAction" class="btn btn-primary flex-1">Prijavi se</button>
+                    <button id="modalRegisterAction" class="btn btn-secondary flex-1">Registriraj se</button>
+                    <button id="closeModalBtn" class="btn btn-ghost">Zatvori</button>
+                </div>
+                <div id="authErrorMsg" class="text-error text-sm mt-2 hidden"></div>
+                <p class="text-xs text-gray-500 mt-4">💡 Uputa: Prvo omogući Email/Password authentication u Firebase konzoli!</p>
+            </div>
+        </dialog>
+
+        <!-- DODAVANJE KNJIGE (samo prijavljeni) -->
+        <div id="addBookPanel" class="bg-white rounded-xl shadow-md p-5 mb-8 hidden border border-gray-200">
+            <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">📖 Prodaj svoju knjigu</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="bookTitle" placeholder="Naslov knjige *" class="input input-bordered w-full" />
+                <input type="text" id="bookAuthor" placeholder="Autor *" class="input input-bordered w-full" />
+                <input type="number" id="bookPrice" placeholder="Cijena (€) *" class="input input-bordered w-full" step="0.01" />
+                <input type="text" id="bookImage" placeholder="URL slike (opcionalno)" class="input input-bordered w-full" />
+                <textarea id="bookDesc" placeholder="Opis knjige..." class="textarea textarea-bordered md:col-span-2" rows="2"></textarea>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button id="submitBookBtn" class="btn btn-success">💰 Objavi knjigu za prodaju</button>
+            </div>
+        </div>
+
+        <!-- FILTER I SORTIRANJE -->
+        <div class="flex flex-wrap gap-3 justify-between items-center my-6 bg-white p-3 rounded-lg shadow-sm">
+            <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium">🔍 Pretraži:</span>
+                <input type="text" id="searchInput" placeholder="Naslov ili autor" class="input input-bordered input-sm w-48" />
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium">Sortiraj:</span>
+                <select id="sortSelect" class="select select-bordered select-sm">
+                    <option value="default">Zadano</option>
+                    <option value="price_asc">Cijena rastuće</option>
+                    <option value="price_desc">Cijena padajuće</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- GRID KNJIGA -->
+        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-12">Učitavanje knjiga... <div class="loading-spinner ml-2"></div></div>
+        </div>
+
+        <!-- MODAL ZA RECENZIJE -->
+        <dialog id="reviewModal" class="modal">
+            <div class="modal-box max-w-lg">
+                <h3 id="reviewModalTitle" class="font-bold text-lg">Recenzije za knjigu</h3>
+                <div id="reviewsList" class="mt-3 max-h-60 overflow-y-auto border rounded p-2 bg-gray-50"></div>
+                <div class="mt-4" id="addReviewSection">
+                    <textarea id="newReviewText" rows="2" placeholder="Napiši svoju recenziju..." class="textarea textarea-bordered w-full"></textarea>
+                    <div class="flex flex-wrap justify-between items-center mt-2 gap-2">
+                        <div class="rating rating-sm" id="ratingStars">
+                            <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" />
+                            <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" checked />
+                        </div>
+                        <button id="submitReviewBtn" class="btn btn-primary btn-sm">Dodaj recenziju</button>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button id="closeReviewModal" class="btn">Zatvori</button>
+                </div>
+            </div>
+        </dialog>
+    </div>
+
+    <script type="module">
         // Firebase konfiguracija
         const firebaseConfig = {
             apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
@@ -536,4 +533,6 @@ function slusajPromjenePodataka(putanja) {
         loadBooks();
         console.log("✅ Aplikacija pokrenuta!");
         showToast("🚀 Aplikacija je spremna! Prijavite se za prodaju i recenzije.", "success");
-    
+    </script>
+</body>
+</html>
