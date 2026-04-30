@@ -29,14 +29,14 @@
         <!-- HEADER -->
         <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6 gap-3 bg-white p-4 rounded-xl shadow-sm">
             <div class="flex items-center gap-2">
-                <div class="text-3xl">📚</div>
-                <h1 class="text-2xl font-bold text-gray-800">Student Marketplace</h1>
-                <span class="badge badge-primary badge-sm ml-2">Knjige + recenzije</span>
+                
+                <h1 class="text-2xl font-bold text-gray-800">LibraMarket</h1>
+                
             </div>
             <div id="auth-section" class="flex gap-3 items-center">
                 <div id="userInfoPlaceholder" class="text-sm font-medium"></div>
-                <button id="loginBtn" class="btn btn-primary btn-sm">🔐 Prijava</button>
-                <button id="logoutBtn" class="btn btn-outline btn-sm hidden">🚪 Odjava</button>
+                <button id="loginBtn" class="btn btn-primary btn-sm">Prijava</button>
+                <button id="logoutBtn" class="btn btn-outline btn-sm hidden">Odjava</button>
             </div>
         </div>
 
@@ -45,7 +45,7 @@
         <!-- PRIJAVA MODAL -->
         <dialog id="authModal" class="modal">
             <div class="modal-box">
-                <h3 class="font-bold text-lg mb-4">Prijava / Registracija</h3>
+                <h3 class="font-bold text-lg mb-4">Prijava/Registracija</h3>
                 <input type="email" id="loginEmail" placeholder="Email" class="input input-bordered w-full mb-3" />
                 <input type="password" id="loginPassword" placeholder="Lozinka (min 6 znakova)" class="input input-bordered w-full mb-4" />
                 <div class="flex flex-wrap gap-2">
@@ -54,13 +54,13 @@
                     <button id="closeModalBtn" class="btn btn-ghost">Zatvori</button>
                 </div>
                 <div id="authErrorMsg" class="text-error text-sm mt-2 hidden"></div>
-                <p class="text-xs text-gray-500 mt-4">💡 Uputa: Prvo omogući Email/Password authentication u Firebase konzoli!</p>
+                
             </div>
         </dialog>
 
         <!-- DODAVANJE KNJIGE (samo prijavljeni) -->
         <div id="addBookPanel" class="bg-white rounded-xl shadow-md p-5 mb-8 hidden border border-gray-200">
-            <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">📖 Prodaj svoju knjigu</h2>
+            <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">Prodaj svoju knjigu</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="text" id="bookTitle" placeholder="Naslov knjige *" class="input input-bordered w-full" />
                 <input type="text" id="bookAuthor" placeholder="Autor *" class="input input-bordered w-full" />
@@ -69,14 +69,14 @@
                 <textarea id="bookDesc" placeholder="Opis knjige..." class="textarea textarea-bordered md:col-span-2" rows="2"></textarea>
             </div>
             <div class="mt-4 flex justify-end">
-                <button id="submitBookBtn" class="btn btn-success">💰 Objavi knjigu za prodaju</button>
+                <button id="submitBookBtn" class="btn btn-success">Objavi knjigu za prodaju</button>
             </div>
         </div>
 
         <!-- FILTER I SORTIRANJE -->
         <div class="flex flex-wrap gap-3 justify-between items-center my-6 bg-white p-3 rounded-lg shadow-sm">
             <div class="flex gap-2 items-center">
-                <span class="text-sm font-medium">🔍 Pretraži:</span>
+                <span class="text-sm font-medium">Pretraži:</span>
                 <input type="text" id="searchInput" placeholder="Naslov ili autor" class="input input-bordered input-sm w-48" />
             </div>
             <div class="flex gap-2 items-center">
@@ -270,12 +270,12 @@
             document.querySelectorAll('.buy-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if(!currentUser) { 
-                        showToast("❌ Morate se prijaviti za kupnju!", "error"); 
+                        showToast("Morate se prijaviti za kupnju!", "error"); 
                         return; 
                     }
                     const title = btn.getAttribute('data-title');
                     const price = btn.getAttribute('data-price');
-                    showToast(`✅ Kupili ste knjigu "${title}" za ${price} €! Hvala na kupnji.`, "success");
+                    showToast(`Kupili ste knjigu "${title}" za ${price} €! Hvala na kupnji.`, "success");
                 });
             });
         }
@@ -291,7 +291,7 @@
             const reviews = book.reviews ? Object.values(book.reviews) : [];
             
             if(reviews.length === 0) {
-                reviewsListDiv.innerHTML = '<p class="text-gray-500 italic">📭 Još nema recenzija, budi prvi!</p>';
+                reviewsListDiv.innerHTML = '<p class="text-gray-500 italic">Još nema recenzija, budi prvi!</p>';
             } else {
                 reviewsListDiv.innerHTML = reviews.map(rev => `
                     <div class="border-b py-2">
@@ -316,7 +316,7 @@
         
         async function addNewBook() {
             if(!currentUser) { 
-                showToast("❌ Morate se prijaviti za prodaju!", "error"); 
+                showToast("Morate se prijaviti za prodaju!", "error"); 
                 return; 
             }
             
@@ -327,7 +327,7 @@
             const description = document.getElementById('bookDesc').value.trim();
             
             if(!title || !author || isNaN(price) || price <= 0) {
-                showToast("⚠️ Molimo ispunite naslov, autora i cijenu (>0)", "error");
+                showToast("Molimo ispunite naslov, autora i cijenu (>0)", "error");
                 return;
             }
             
@@ -343,7 +343,7 @@
                     sellerId: currentUser.uid,
                     createdAt: Date.now()
                 });
-                showToast("📖 Knjiga uspješno dodana u prodaju!");
+                showToast("Knjiga uspješno dodana u prodaju!");
                 document.getElementById('bookTitle').value = '';
                 document.getElementById('bookAuthor').value = '';
                 document.getElementById('bookPrice').value = '';
@@ -357,14 +357,14 @@
         
         async function addReview() {
             if(!currentUser) { 
-                showToast("❌ Prijavite se za ostavljanje recenzije", "error"); 
+                showToast("Prijavite se za ostavljanje recenzije", "error"); 
                 return; 
             }
             if(!currentBookId) return;
             
             const reviewText = newReviewText.value.trim();
             if(!reviewText) { 
-                showToast("⚠️ Napišite recenziju", "error"); 
+                showToast("Napišite recenziju", "error"); 
                 return; 
             }
             
@@ -382,14 +382,14 @@
                     rating: selectedRating,
                     timestamp: Date.now()
                 });
-                showToast("⭐ Recenzija dodana!");
+                showToast("Recenzija dodana!");
                 newReviewText.value = '';
                 const defaultRating = document.querySelector('input[name="rating"][value="5"]');
                 if(defaultRating) defaultRating.checked = true;
                 reviewModal.close();
             } catch(e) {
                 console.error("Greška:", e);
-                showToast("❌ Greška: " + e.message, "error");
+                showToast("Greška: " + e.message, "error");
             }
         }
         
@@ -407,19 +407,19 @@
                 let errorMessage = "";
                 switch(error.code) {
                     case 'auth/invalid-email':
-                        errorMessage = "❌ Neispravan format emaila!";
+                        errorMessage = "Neispravan format emaila!";
                         break;
                     case 'auth/user-disabled':
-                        errorMessage = "❌ Korisnički račun je onemogućen!";
+                        errorMessage = "Korisnički račun je onemogućen!";
                         break;
                     case 'auth/user-not-found':
-                        errorMessage = "❌ Korisnik ne postoji. Molimo registrirajte se!";
+                        errorMessage = "Korisnik ne postoji. Molimo registrirajte se!";
                         break;
                     case 'auth/wrong-password':
-                        errorMessage = "❌ Pogrešna lozinka!";
+                        errorMessage = "Pogrešna lozinka!";
                         break;
                     default:
-                        errorMessage = "❌ Greška: " + error.message;
+                        errorMessage = "Greška: " + error.message;
                 }
                 authErrorMsg.textContent = errorMessage;
                 authErrorMsg.classList.remove('hidden');
@@ -430,7 +430,7 @@
         async function handleRegister(email, password) {
             authErrorMsg.classList.add('hidden');
             if(password.length < 6) {
-                const msg = "⚠️ Lozinka mora imati najmanje 6 znakova!";
+                const msg = "Lozinka mora imati najmanje 6 znakova!";
                 authErrorMsg.textContent = msg;
                 authErrorMsg.classList.remove('hidden');
                 showToast(msg, "error");
@@ -438,7 +438,7 @@
             }
             try {
                 const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                showToast(`✅ Registracija uspješna! Dobrodošli, ${userCred.user.email}!`);
+                showToast(`Registracija uspješna! Dobrodošli, ${userCred.user.email}!`);
                 authModal.close();
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
@@ -447,16 +447,16 @@
                 let errorMessage = "";
                 switch(error.code) {
                     case 'auth/email-already-in-use':
-                        errorMessage = "❌ Email već postoji, pokušajte se prijaviti!";
+                        errorMessage = "Email već postoji, pokušajte se prijaviti!";
                         break;
                     case 'auth/invalid-email':
-                        errorMessage = "❌ Neispravan format emaila!";
+                        errorMessage = "Neispravan format emaila!";
                         break;
                     case 'auth/weak-password':
-                        errorMessage = "❌ Lozinka je preslaba! Koristite minimalno 6 znakova.";
+                        errorMessage = "Lozinka je preslaba! Koristite minimalno 6 znakova.";
                         break;
                     default:
-                        errorMessage = "❌ Greška: " + error.message;
+                        errorMessage = "Greška: " + error.message;
                 }
                 authErrorMsg.textContent = errorMessage;
                 authErrorMsg.classList.remove('hidden');
@@ -468,7 +468,7 @@
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             if(user) {
-                userInfoPlaceholder.innerHTML = `👋 ${user.email}`;
+                userInfoPlaceholder.innerHTML = `${user.email}`;
                 loginBtn.classList.add('hidden');
                 logoutBtn.classList.remove('hidden');
                 addBookPanel.classList.remove('hidden');
@@ -482,7 +482,7 @@
         
         logoutBtn.addEventListener('click', async () => {
             await signOut(auth);
-            showToast("🚪 Odjavljeni ste");
+            showToast(" Odjavljeni ste");
         });
         
         loginBtn.addEventListener('click', () => {
@@ -524,8 +524,8 @@
         
         // Pokreni aplikaciju
         loadBooks();
-        console.log("✅ Aplikacija pokrenuta!");
-        showToast("🚀 Aplikacija je spremna! Prijavite se za prodaju i recenzije.", "success");
+        console.log("Aplikacija pokrenuta!");
+        showToast("Aplikacija je spremna! Prijavite se za prodaju i recenzije.", "success");
     </script>
 </body>
 </html>

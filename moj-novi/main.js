@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-import { getDatabase, ref, set, push, onValue } from "firebase/database";
+import { getDatabase, ref, set, get, push, onValue } from "firebase/database";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
@@ -16,90 +16,398 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// DOM
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const addBookPanel = document.getElementById('addBookPanel');
-const submitBookBtn = document.getElementById('submitBookBtn');
-const booksGrid = document.getElementById('booksGrid');
-const userInfo = document.getElementById('userInfo');
-
-let currentUser = null;
-
-// AUTH STATE
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-
-    if(user){
-        userInfo.innerHTML = `👋 ${user.email}`;
-        loginBtn.classList.add('hidden');
-        logoutBtn.classList.remove('hidden');
-        addBookPanel.classList.remove('hidden');
-    } else {
-        userInfo.innerHTML = '👤 Gost';
-        loginBtn.classList.remove('hidden');
-        logoutBtn.classList.add('hidden');
-        addBookPanel.classList.add('hidden');
-    }
-});
-
-// LOGIN
-loginBtn.onclick = async () => {
-    const email = prompt("Email:");
-    const pass = prompt("Password:");
-    if(email && pass){
-        try {
-            await signInWithEmailAndPassword(auth, email, pass);
-        } catch(e){
-            alert("Greška: " + e.message);
+// (OVDJE IDE DOSLOVNO SAV OSTATAK TVOG KODA BEZ PROMJENE)
+// 👉 samo copy/paste iz originalnog <script> dijela
+        
+        // DOM elementi
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authModal = document.getElementById('authModal');
+        const modalLoginAction = document.getElementById('modalLoginAction');
+        const modalRegisterAction = document.getElementById('modalRegisterAction');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const userInfoPlaceholder = document.getElementById('userInfoPlaceholder');
+        const addBookPanel = document.getElementById('addBookPanel');
+        const submitBookBtn = document.getElementById('submitBookBtn');
+        const booksGrid = document.getElementById('booksGrid');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const reviewModal = document.getElementById('reviewModal');
+        const reviewsListDiv = document.getElementById('reviewsList');
+        const submitReviewBtn = document.getElementById('submitReviewBtn');
+        const newReviewText = document.getElementById('newReviewText');
+        const closeReviewModal = document.getElementById('closeReviewModal');
+        const authErrorMsg = document.getElementById('authErrorMsg');
+        
+        let currentUser = null;
+        let currentBookId = null;
+        let allBooks = [];
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'error' : 'success'} shadow-lg mb-2`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
-    }
-};
-
-// LOGOUT
-logoutBtn.onclick = () => signOut(auth);
-
-// ADD BOOK
-submitBookBtn.onclick = async () => {
-    const title = document.getElementById('bookTitle').value;
-    const author = document.getElementById('bookAuthor').value;
-    const price = document.getElementById('bookPrice').value;
-
-    if(!title || !author || !price){
-        alert("Popuni sva polja!");
-        return;
-    }
-
-    const newRef = push(ref(db, 'books'));
-    await set(newRef, {
-        title,
-        author,
-        price,
-        user: currentUser.email
-    });
-
-    alert("Dodano!");
-};
-
-// LOAD BOOKS
-function loadBooks(){
-    onValue(ref(db, 'books'), (snap)=>{
-        const data = snap.val();
-
-        if(!data){
-            booksGrid.innerHTML = "Nema knjiga";
-            return;
+        
+        function escapeHtml(str) {
+            if(!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                return m;
+            });
         }
+        
+        function renderStaticStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            for(let i = 1; i <= 5; i++) {
+                stars += `<input type="radio" name="rating-static" disabled ${i <= fullStars ? 'checked' : ''} class="mask mask-star-2 bg-orange-400" />`;
+            }
+            return stars;
+        }
+        
+        function loadBooks() {
+            const booksRef = ref(db, 'books');
+            onValue(booksRef, (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    allBooks = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                } else {
+                    allBooks = [];
+                }
+                renderBooks();
+            }, (error) => {
+                console.error("Greška:", error);
+                showToast("Greška pri učitavanju knjiga: " + error.message, "error");
+            });
+        }
+        
+        function renderBooks() {
+            let filtered = [...allBooks];
+            const searchTerm = searchInput.value.toLowerCase();
+            if(searchTerm) {
+                filtered = filtered.filter(book => 
+                    book.title?.toLowerCase().includes(searchTerm) || 
+                    book.author?.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            const sortVal = sortSelect.value;
+            if(sortVal === 'price_asc') filtered.sort((a,b) => (a.price||0) - (b.price||0));
+            if(sortVal === 'price_desc') filtered.sort((a,b) => (b.price||0) - (a.price||0));
+            
+            if(filtered.length === 0) {
+                booksGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl shadow">📭 Trenutno nema knjiga. Budi prvi koji će prodati knjigu!</div>`;
+                return;
+            }
+            
+            booksGrid.innerHTML = filtered.map(book => {
+                const reviews = book.reviews ? Object.values(book.reviews) : [];
+                const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + (r.rating||0), 0) / reviews.length).toFixed(1) : 'Nema';
+                const reviewCount = reviews.length;
+                return `
+                    <div class="card card-compact bg-white shadow-lg rounded-xl overflow-hidden transition-all card-hover border border-gray-200">
+                        <figure class="h-48 bg-gray-100">
+                            <img src="${book.imageUrl || 'https://placehold.co/400x300?text=Book+Cover'}" alt="${escapeHtml(book.title)}" class="object-cover w-full h-full" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                        </figure>
+                        <div class="card-body">
+                            <h2 class="card-title text-lg font-bold">${escapeHtml(book.title)}</h2>
+                            <p class="text-sm text-gray-500">Autor: ${escapeHtml(book.author)}</p>
+                            <p class="text-md font-semibold text-primary">💰 ${book.price} €</p>
+                            <p class="text-sm text-gray-600">${escapeHtml((book.description || 'Opis nije dostupan').substring(0,80))}</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="flex items-center gap-1 text-sm">
+                                    <div class="rating rating-xs">${avgRating !== 'Nema' ? renderStaticStars(parseFloat(avgRating)) : '⭐ Nema ocjena'}</div>
+                                    <span>(${reviewCount})</span>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn btn-xs btn-outline btn-info review-btn" data-id="${book.id}">📝 Recenzije</button>
+                                    <button class="btn btn-xs btn-success buy-btn" data-id="${book.id}" data-title="${escapeHtml(book.title)}" data-price="${book.price}">🛒 Kupi</button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Prodavač: ${escapeHtml(book.sellerEmail || 'anonimno')}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.querySelectorAll('.review-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-id');
+                    openReviewModal(id);
+                });
+            });
+            
+            document.querySelectorAll('.buy-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if(!currentUser) { 
+                        showToast("❌ Morate se prijaviti za kupnju!", "error"); 
+                        return; 
+                    }
+                    const title = btn.getAttribute('data-title');
+                    const price = btn.getAttribute('data-price');
+                    showToast(`✅ Kupili ste knjigu "${title}" za ${price} €! Hvala na kupnji.`, "success");
+                });
+            });
+        }
+        
+        async function openReviewModal(bookId) {
+            currentBookId = bookId;
+            const bookRef = ref(db, `books/${bookId}`);
+            const snapshot = await get(bookRef);
+            const book = snapshot.val();
+            if(!book) return;
+            
+            document.getElementById('reviewModalTitle').innerHTML = `Recenzije za: ${escapeHtml(book.title)}`;
+            const reviews = book.reviews ? Object.values(book.reviews) : [];
+            
+            if(reviews.length === 0) {
+                reviewsListDiv.innerHTML = '<p class="text-gray-500 italic">📭 Još nema recenzija, budi prvi!</p>';
+            } else {
+                reviewsListDiv.innerHTML = reviews.map(rev => `
+                    <div class="border-b py-2">
+                        <div class="flex items-center gap-2">
+                            <div class="rating rating-xs">${renderStaticStars(rev.rating)}</div>
+                            <span class="text-xs font-semibold">${escapeHtml(rev.userEmail)}</span>
+                            <span class="text-xs text-gray-400">${new Date(rev.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-sm mt-1">${escapeHtml(rev.text)}</p>
+                    </div>
+                `).join('');
+            }
+            
+            const addReviewSection = document.getElementById('addReviewSection');
+            if(currentUser) {
+                addReviewSection.style.display = 'block';
+            } else {
+                addReviewSection.style.display = 'none';
+            }
+            reviewModal.showModal();
+        }
+        
+        async function addNewBook() {
+            if(!currentUser) { 
+                showToast("❌ Morate se prijaviti za prodaju!", "error"); 
+                return; 
+            }
+            
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const price = parseFloat(document.getElementById('bookPrice').value);
+            const imageUrl = document.getElementById('bookImage').value.trim();
+            const description = document.getElementById('bookDesc').value.trim();
+            
+            if(!title || !author || isNaN(price) || price <= 0) {
+                showToast("⚠️ Molimo ispunite naslov, autora i cijenu (>0)", "error");
+                return;
+            }
+            
+            try {
+                const newBookRef = push(ref(db, 'books'));
+                await set(newBookRef, {
+                    title: title,
+                    author: author,
+                    price: price,
+                    imageUrl: imageUrl || null,
+                    description: description || "Bez opisa",
+                    sellerEmail: currentUser.email,
+                    sellerId: currentUser.uid,
+                    createdAt: Date.now()
+                });
+                showToast("📖 Knjiga uspješno dodana u prodaju!");
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookAuthor').value = '';
+                document.getElementById('bookPrice').value = '';
+                document.getElementById('bookImage').value = '';
+                document.getElementById('bookDesc').value = '';
+            } catch(e) {
+                console.error("Greška:", e);
+                showToast("❌ Greška: " + e.message, "error");
+            }
+        }
+        
+        async function addReview() {
+            if(!currentUser) { 
+                showToast("❌ Prijavite se za ostavljanje recenzije", "error"); 
+                return; 
+            }
+            if(!currentBookId) return;
+            
+            const reviewText = newReviewText.value.trim();
+            if(!reviewText) { 
+                showToast("⚠️ Napišite recenziju", "error"); 
+                return; 
+            }
+            
+            let selectedRating = 5;
+            const radioSelected = document.querySelector('input[name="rating"]:checked');
+            if(radioSelected) selectedRating = parseInt(radioSelected.value);
+            
+            try {
+                const reviewId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const reviewRef = ref(db, `books/${currentBookId}/reviews/${reviewId}`);
+                await set(reviewRef, {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    text: reviewText,
+                    rating: selectedRating,
+                    timestamp: Date.now()
+                });
+                showToast("⭐ Recenzija dodana!");
+                newReviewText.value = '';
+                const defaultRating = document.querySelector('input[name="rating"][value="5"]');
+                if(defaultRating) defaultRating.checked = true;
+                reviewModal.close();
+            } catch(e) {
+                console.error("Greška:", e);
+                showToast("❌ Greška: " + e.message, "error");
+            }
+        }
+        
+        // AUTH FUNKCIJE
+        async function handleLogin(email, password) {
+            authErrorMsg.classList.add('hidden');
+            try {
+                const userCred = await signInWithEmailAndPassword(auth, email, password);
+                showToast(`👋 Dobrodošli, ${userCred.user.email}!`);
+                authModal.close();
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            } catch(error) {
+                console.error("Login error:", error);
+                let errorMessage = "";
+                switch(error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = "❌ Neispravan format emaila!";
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = "❌ Korisnički račun je onemogućen!";
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = "❌ Korisnik ne postoji. Molimo registrirajte se!";
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = "❌ Pogrešna lozinka!";
+                        break;
+                    default:
+                        errorMessage = "❌ Greška: " + error.message;
+                }
+                authErrorMsg.textContent = errorMessage;
+                authErrorMsg.classList.remove('hidden');
+                showToast(errorMessage, "error");
+            }
+        }
+        
+        async function handleRegister(email, password) {
+            authErrorMsg.classList.add('hidden');
+            if(password.length < 6) {
+                const msg = "⚠️ Lozinka mora imati najmanje 6 znakova!";
+                authErrorMsg.textContent = msg;
+                authErrorMsg.classList.remove('hidden');
+                showToast(msg, "error");
+                return;
+            }
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                showToast(`✅ Registracija uspješna! Dobrodošli, ${userCred.user.email}!`);
+                authModal.close();
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            } catch(error) {
+                console.error("Registration error:", error);
+                let errorMessage = "";
+                switch(error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = "❌ Email već postoji, pokušajte se prijaviti!";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "❌ Neispravan format emaila!";
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = "❌ Lozinka je preslaba! Koristite minimalno 6 znakova.";
+                        break;
+                    default:
+                        errorMessage = "❌ Greška: " + error.message;
+                }
+                authErrorMsg.textContent = errorMessage;
+                authErrorMsg.classList.remove('hidden');
+                showToast(errorMessage, "error");
+            }
+        }
+        
+        // Event Listeners
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if(user) {
+                userInfoPlaceholder.innerHTML = `👋 ${user.email}`;
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                addBookPanel.classList.remove('hidden');
+            } else {
+                userInfoPlaceholder.innerHTML = '👤 Neprijavljen';
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                addBookPanel.classList.add('hidden');
+            }
+        });
+        
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            showToast("🚪 Odjavljeni ste");
+        });
+        
+        loginBtn.addEventListener('click', () => {
+            authErrorMsg.classList.add('hidden');
+            authModal.showModal();
+        });
+        
+        closeModalBtn.addEventListener('click', () => authModal.close());
+        
+        modalLoginAction.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const pwd = document.getElementById('loginPassword').value;
+            if(email && pwd) handleLogin(email, pwd);
+            else {
+                const msg = "⚠️ Unesite email i lozinku";
+                authErrorMsg.textContent = msg;
+                authErrorMsg.classList.remove('hidden');
+                showToast(msg, "error");
+            }
+        });
+        
+        modalRegisterAction.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const pwd = document.getElementById('loginPassword').value;
+            if(email && pwd) handleRegister(email, pwd);
+            else {
+                const msg = "⚠️ Unesite email i lozinku (min 6 znakova)";
+                authErrorMsg.textContent = msg;
+                authErrorMsg.classList.remove('hidden');
+                showToast(msg, "error");
+            }
+        });
+        
+        submitBookBtn.addEventListener('click', addNewBook);
+        submitReviewBtn.addEventListener('click', addReview);
+        closeReviewModal.addEventListener('click', () => reviewModal.close());
+        searchInput.addEventListener('input', () => renderBooks());
+        sortSelect.addEventListener('change', () => renderBooks());
+        
+        // Pokreni aplikaciju
+        loadBooks();
+        console.log("✅ Aplikacija pokrenuta!");
+        showToast("🚀 Aplikacija je spremna! Prijavite se za prodaju i recenzije.", "success");
+    
 
-        booksGrid.innerHTML = Object.values(data).map(b => `
-            <div class="bg-white p-3 mb-2 rounded shadow">
-                <b>${b.title}</b><br>
-                ${b.author}<br>
-                💰 ${b.price} €<br>
-                <small>${b.user}</small>
-            </div>
-        `).join('');
-    });
-}
-
+// NA KRAJU:
 loadBooks();
+console.log("✅ Aplikacija pokrenuta!");
