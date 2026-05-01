@@ -31,7 +31,7 @@
         <!--navbar -->
         <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6 gap-3 bg-white p-4 rounded-xl shadow-sm" style="background-color: #8b597b; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">
             <div class="flex items-center gap-2">
-               <img src="slike/log.png" alt="opis slike"><h1 class="text-2xl font-bold text-gray-800">LibraMarket</h1>
+               <img src="slike/log.png" alt="opis slike"><h1 class="text-2xl font-bold text-white">LibraMarket</h1>
             </div>
             <div class="flex gap-4 items-center">
                 <button id="cartIconBtn" class="btn btn-ghost btn-sm cart-btn-relative gap-1">
@@ -95,15 +95,15 @@
             </div>
         </div>
 
-        <!-- FILTER I SORTIRANJE  prominit boju u neku lipsu da pase sa pozadinom i do ovden san dosla -->
-        <div class="flex flex-wrap gap-3 justify-between items-center my-6 bg-white p-3 rounded-lg shadow-sm" style="background-color:#efa3a0">
-            <div class="flex gap-2 items-center">
+        <!--pretrazivanje/sortiranje-->
+        <div class="flex flex-wrap gap-3 justify-between items-center my-6 bg-white p-3 rounded-lg shadow-sm" style="background-color:#f1bfbd">
+            <div class="flex gap-2 items-center" >
                 <span class="text-sm font-medium">Pretraži:</span>
-                <input type="text" id="searchInput" placeholder="Naslov ili autor" class="input input-bordered input-sm w-48" />
+                <input type="text" id="searchInput" placeholder="Naslov ili autor" class="input input-bordered input-sm w-48" style="background-color:#ffeedb"/>
             </div>
             <div class="flex gap-2 items-center">
                 <span class="text-sm font-medium">Sortiraj:</span>
-                <select id="sortSelect" class="select select-bordered select-sm">
+                <select id="sortSelect" class="select select-bordered select-sm" style="background-color:#ffeedb">
                     <option value="default">Zadano</option>
                     <option value="price_asc">Cijena rastuće</option>
                     <option value="price_desc">Cijena padajuće</option>
@@ -111,14 +111,12 @@
             </div>
         </div>
 
-        <!-- GRID KNJIGA -->
-        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full text-center py-12">Učitavanje knjiga... <div class="loading-spinner ml-2"></div></div>
-        </div>
+        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-transparent"></div>
 
-    <!-- recenzije -->
+
+    <!--recz -->
         <dialog id="reviewModal" class="modal">
-            <div class="modal-box max-w-lg">
+            <div class="modal-box max-w-lg" style="background-color:#ffeedb">
                 <h3 id="reviewModalTitle" class="font-bold text-lg">Recenzije za knjigu</h3>
                 <div id="reviewsList" class="mt-3 max-h-60 overflow-y-auto border rounded p-2 bg-gray-50"></div>
                 <div class="mt-4" id="addReviewSection">
@@ -131,7 +129,7 @@
                             <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" />
                             <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" checked />
                         </div>
-                        <button id="submitReviewBtn" class="btn btn-primary btn-sm">Dodaj recenziju</button>
+                        <button id="submitReviewBtn" class="btn btn-primary btn-sm" style="background-color:#8b597b">Dodaj recenziju</button>
                     </div>
                 </div>
                 <div class="modal-action">
@@ -141,83 +139,129 @@
         </dialog>
     </div>
 
+    <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10 " style="background-color: #8b597b; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">
+  <aside>
+    <p>
+      <h2>LibraMarket- najbolja stranica za kupnju i prodaju školskih knjiga</h2><br>
+      <h2>Ako imaš knjige za neki razred osnovne/srednje škole koje ti više nisu potrebne onda je ova stranica pravo rješenje za tebe!</h2>
+      <br>
+      <b><i>KONTAKT:</i></b><br> <b>Petra J.</b> - +385 12 345 6788<br>
+               <b>Daniela I.</b> - +385 98 765 4321
+    </p>
+  </aside>
+  <nav>
+    <h6 class="footer-title">Social</h6>
+    <div class="grid grid-flow-col gap-4">
+      <a href="https://x.com/" target="_blank">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          class="fill-current">
+          <path
+            d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+        </svg>
+      </a>
+      <a href="https://www.youtube.com/" target="_blank">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          class="fill-current">
+          <path
+            d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
+        </svg>
+      </a>
+      <a href="https://www.facebook.com/" target="_blank">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          class="fill-current">
+          <path
+            d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
+        </svg>
+      </a>
+    </div>
+  </nav>
+    </footer>
     <script type="module">
-        // Firebase konfiguracija
         const firebaseConfig = {
-            apiKey: "AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
-            authDomain: "zavrsnipetradaniela.firebaseapp.com",
-            databaseURL: "https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "zavrsnipetradaniela",
-            storageBucket: "zavrsnipetradaniela.firebasestorage.app",
-            messagingSenderId: "1016932466553",
-            appId: "1:1016932466553:web:994b6d55d4d04efa8939a8"
+            apiKey:"AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
+            authDomain:"zavrsnipetradaniela.firebaseapp.com",
+            databaseURL:"https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId:"zavrsnipetradaniela",
+            storageBucket:"zavrsnipetradaniela.firebasestorage.app",
+            messagingSenderId:"1016932466553",
+            appId:"1:1016932466553:web:994b6d55d4d04efa8939a8"
         };
         
-        import { initializeApp } from "firebase/app";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getDatabase, ref, set, get, push, onValue, remove } from "firebase/database";
+        import{initializeApp}from "firebase/app";
+        import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,onAuthStateChanged,signOut}from "firebase/auth";
+        import{getDatabase,ref,set,get,push,onValue,remove}from "firebase/database";
         
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+        const app=initializeApp(firebaseConfig);
+        const auth=getAuth(app);
+        const db=getDatabase(app);
         
-        // DOM elementi
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const authModal = document.getElementById('authModal');
-        const modalLoginAction = document.getElementById('modalLoginAction');
-        const modalRegisterAction = document.getElementById('modalRegisterAction');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const userInfoPlaceholder = document.getElementById('userInfoPlaceholder');
-        const addBookPanel = document.getElementById('addBookPanel');
-        const submitBookBtn = document.getElementById('submitBookBtn');
-        const booksGrid = document.getElementById('booksGrid');
-        const searchInput = document.getElementById('searchInput');
-        const sortSelect = document.getElementById('sortSelect');
-        const reviewModal = document.getElementById('reviewModal');
-        const reviewsListDiv = document.getElementById('reviewsList');
-        const submitReviewBtn = document.getElementById('submitReviewBtn');
-        const newReviewText = document.getElementById('newReviewText');
-        const closeReviewModal = document.getElementById('closeReviewModal');
-        const authErrorMsg = document.getElementById('authErrorMsg');
-        const cartIconBtn = document.getElementById('cartIconBtn');
-        const cartModal = document.getElementById('cartModal');
-        const cartItemsList = document.getElementById('cartItemsList');
-        const cartTotalPriceSpan = document.getElementById('cartTotalPrice');
-        const clearCartBtn = document.getElementById('clearCartBtn');
-        const checkoutCartBtn = document.getElementById('checkoutCartBtn');
-        const closeCartModalBtn = document.getElementById('closeCartModalBtn');
-        const cartCountBadge = document.getElementById('cartCountBadge');
+        //dom
+        const loginBtn=document.getElementById('loginBtn');
+        const logoutBtn=document.getElementById('logoutBtn');
+        const authModal=document.getElementById('authModal');
+        const modalLoginAction=document.getElementById('modalLoginAction');
+        const modalRegisterAction=document.getElementById('modalRegisterAction');
+        const closeModalBtn=document.getElementById('closeModalBtn');
+        const userInfoPlaceholder=document.getElementById('userInfoPlaceholder');
+        const addBookPanel=document.getElementById('addBookPanel');
+        const submitBookBtn=document.getElementById('submitBookBtn');
+        const booksGrid=document.getElementById('booksGrid');
+        const searchInput=document.getElementById('searchInput');
+        const sortSelect=document.getElementById('sortSelect');
+        const reviewModal=document.getElementById('reviewModal');
+        const reviewsListDiv=document.getElementById('reviewsList');
+        const submitReviewBtn=document.getElementById('submitReviewBtn');
+        const newReviewText=document.getElementById('newReviewText');
+        const closeReviewModal=document.getElementById('closeReviewModal');
+        const authErrorMsg=document.getElementById('authErrorMsg');
+        const cartIconBtn=document.getElementById('cartIconBtn');
+        const cartModal=document.getElementById('cartModal');
+        const cartItemsList=document.getElementById('cartItemsList');
+        const cartTotalPriceSpan=document.getElementById('cartTotalPrice');
+        const clearCartBtn=document.getElementById('clearCartBtn');
+        const checkoutCartBtn=document.getElementById('checkoutCartBtn');
+        const closeCartModalBtn=document.getElementById('closeCartModalBtn');
+        const cartCountBadge=document.getElementById('cartCountBadge');
         
-        let currentUser = null;
-        let currentBookId = null;
-        let allBooks = [];
+        let currentUser=null;
+        let currentBookId=null;
+        let allBooks=[];
         
-        // Košarica (lokalno stanje, ne perzistira u bazi po zahtjevu, čisto frontend)
-        let cartItems = []; // svaki item: { id, title, price, image, sellerEmail }
+        let cartItems=[]; 
         
-        function updateCartUI() {
-            const count = cartItems.length;
-            cartCountBadge.innerText = count;
-            if (count > 0) {
-                cartCountBadge.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0', 'text-xs', 'ml-1');
-            } else {
-                cartCountBadge.innerText = '0';
+        function updateCartUI(){
+            const count=cartItems.length;
+            cartCountBadge.innerText=count;
+            if (count>0){
+                cartCountBadge.classList.add('bg-red-100','text-white','rounded-full','px-1.5','py-0','text-xs','ml-1');
+            }else{
+                cartCountBadge.innerText='0';
             }
-            // osvježi prikaz u modalima ako je otvoren
             renderCartModal();
         }
         
-        function renderCartModal() {
+        function renderCartModal(){
             if (!cartItemsList) return;
-            if (cartItems.length === 0) {
-                cartItemsList.innerHTML = '<div class="text-center py-6 text-gray-500">Košarica je prazna. Dodajte knjige koje vas zanimaju!</div>';
-                cartTotalPriceSpan.innerText = '0.00';
+            if (cartItems.length===0) {
+                cartItemsList.innerHTML='<div class="text-center py-6 text-gray-500">Košarica je prazna. Dodajte knjige koje vas zanimaju!</div>';
+                cartTotalPriceSpan.innerText='0.00';
                 return;
             }
-            let total = 0;
-            const html = cartItems.map((item, idx) => {
-                total += item.price;
+            let total=0;
+            const html=cartItems.map((item, idx) =>{
+                total+=item.price;
                 return `
                     <div class="flex justify-between items-center border-b py-2">
                         <div class="flex-1">
@@ -228,12 +272,12 @@
                     </div>
                 `;
             }).join('');
-            cartItemsList.innerHTML = html;
-            cartTotalPriceSpan.innerText = total.toFixed(2);
-            document.querySelectorAll('.remove-cart-item').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = parseInt(btn.getAttribute('data-index'));
-                    if (!isNaN(idx)) {
+            cartItemsList.innerHTML=html;
+            cartTotalPriceSpan.innerText=total.toFixed(2);
+            document.querySelectorAll('.remove-cart-item').forEach(btn =>{
+                btn.addEventListener('click',(e) =>{
+                    const idx=parseInt(btn.getAttribute('data-index'));
+                    if (!isNaN(idx)){
                         cartItems.splice(idx, 1);
                         updateCartUI();
                         showToast("Knjiga uklonjena iz košarice", "success");
@@ -242,13 +286,12 @@
             });
         }
         
-        function addToCart(book) {
+        function addToCart(book){
             if (!currentUser) {
                 showToast("Morate se prijaviti za korištenje košarice!", "error");
                 return false;
             }
-            // provjera da li već postoji u košarici (po id-u)
-            if (cartItems.some(item => item.id === book.id)) {
+            if (cartItems.some(item =>item.id===book.id)) {
                 showToast("Ova knjiga je već u košarici!", "warning");
                 return false;
             }
@@ -260,12 +303,12 @@
                 sellerEmail: book.sellerEmail
             });
             updateCartUI();
-            showToast(`📚 "${book.title}" dodana u košaricu`, "success");
+            showToast(`"${book.title}" dodana u košaricu`, "success");
             return true;
         }
         
-        function clearCart() {
-            cartItems = [];
+        function clearCart(){
+            cartItems=[];
             updateCartUI();
             showToast("Košarica ispražnjena", "info");
         }
@@ -282,23 +325,22 @@
             const ukupno = cartItems.reduce((sum, i) => sum + i.price, 0).toFixed(2);
             const naslovi = cartItems.map(i => i.title).join(', ');
             showToast(`Hvala na kupnji! Kupljene knjige: ${naslovi}. Ukupno: ${ukupno} €. Prodavači će vas kontaktirati.`, "success");
-            // opcionalno: praznjenje košarice nakon checkouta
             cartItems = [];
             updateCartUI();
             cartModal.close();
         }
         
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
+        function showToast(message,type='success') {
+            const container=document.getElementById('toastContainer');
             if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = `alert alert-${type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success'} shadow-lg mb-2`;
-            toast.innerHTML = `<span>${message}</span>`;
+            const toast=document.createElement('div');
+            toast.className=`alert alert-${type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success'} shadow-lg mb-2`;
+            toast.innerHTML=`<span>${message}</span>`;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() =>toast.remove(), 3000);
         }
         
-        function escapeHtml(str) {
+        function escapeHtml(str){
             if(!str) return '';
             return str.replace(/[&<>]/g, function(m) {
                 if(m === '&') return '&amp;';
@@ -308,21 +350,21 @@
             });
         }
         
-        function renderStaticStars(rating) {
-            let stars = '';
-            const fullStars = Math.floor(rating);
-            for(let i = 1; i <= 5; i++) {
-                stars += `<input type="radio" name="rating-static" disabled ${i <= fullStars ? 'checked' : ''} class="mask mask-star-2 bg-orange-400" />`;
+        function renderStaticStars(rating){
+            let stars='';
+            const fullStars=Math.floor(rating);
+            for(let i=1;i<=5;i++) {
+                stars+=`<input type="radio" name="rating-static" disabled ${i<=fullStars? 'checked' : ''} class="mask mask-star-2 bg-orange-400" />`;
             }
             return stars;
         }
         
-        function loadBooks() {
-            const booksRef = ref(db, 'books');
+        function loadBooks(){
+            const booksRef=ref(db, 'books');
             onValue(booksRef, (snapshot) => {
-                const data = snapshot.val();
-                if(data) {
-                    allBooks = Object.keys(data).map(key => ({
+                const data=snapshot.val();
+                if(data){
+                    allBooks=Object.keys(data).map(key =>({
                         id: key,
                         ...data[key]
                     }));
@@ -336,19 +378,19 @@
             });
         }
         
-        // Brisanje knjige (samo vlasnik)
-        async function deleteBook(bookId, sellerId) {
+        //samo ako je neko prijavljen more brisat
+        async function deleteBook(bookId, sellerId){
             if (!currentUser) return false;
-            if (currentUser.uid !== sellerId) {
+            if (currentUser.uid !== sellerId){
                 showToast("Možete obrisati samo vlastite knjige!", "error");
                 return false;
             }
-            if (confirm("Jeste li sigurni da želite trajno obrisati ovu knjigu?")) {
-                try {
+            if (confirm("Jeste li sigurni da želite trajno obrisati ovu knjigu?")){
+                try{
                     await remove(ref(db, `books/${bookId}`));
                     showToast("Knjiga uspješno obrisana.", "success");
                     return true;
-                } catch (err) {
+                }catch (err){
                     showToast("Greška pri brisanju: " + err.message, "error");
                     return false;
                 }
@@ -356,39 +398,39 @@
             return false;
         }
         
-        function renderBooks() {
-            let filtered = [...allBooks];
-            const searchTerm = searchInput.value.toLowerCase();
-            if(searchTerm) {
-                filtered = filtered.filter(book => 
+        function renderBooks(){
+            let filtered=[...allBooks];
+            const searchTerm=searchInput.value.toLowerCase();
+            if(searchTerm){
+                filtered=filtered.filter(book => 
                     book.title?.toLowerCase().includes(searchTerm) || 
                     book.author?.toLowerCase().includes(searchTerm)
                 );
             }
             
-            const sortVal = sortSelect.value;
+            const sortVal=sortSelect.value;
             if(sortVal === 'price_asc') filtered.sort((a,b) => (a.price||0) - (b.price||0));
             if(sortVal === 'price_desc') filtered.sort((a,b) => (b.price||0) - (a.price||0));
             
             if(filtered.length === 0) {
-                booksGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl shadow">📭 Trenutno nema knjiga. Budi prvi koji će prodati knjigu!</div>`;
+                booksGrid.innerHTML=`<div class="col-span-full text-center py-12 bg-transparent rounded-xl shadow">Trenutno nema knjiga. Budi prvi koji će prodati knjigu!</div>`;
                 return;
             }
             
-            booksGrid.innerHTML = filtered.map(book => {
-                const reviews = book.reviews ? Object.values(book.reviews) : [];
-                const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + (r.rating||0), 0) / reviews.length).toFixed(1) : 'Nema';
-                const reviewCount = reviews.length;
-                const isOwner = currentUser && book.sellerId === currentUser.uid;
+            booksGrid.innerHTML=filtered.map(book => {
+                const reviews=book.reviews ? Object.values(book.reviews) : [];
+                const avgRating=reviews.length > 0 ? (reviews.reduce((sum, r) => sum + (r.rating||0), 0) / reviews.length).toFixed(1) : 'Nema';
+                const reviewCount=reviews.length;
+                const isOwner=currentUser && book.sellerId === currentUser.uid;
                 return `
-                    <div class="card card-compact bg-white shadow-lg rounded-xl overflow-hidden transition-all card-hover border border-gray-200 relative">
+                    <div class="card card-compact bg-transparent shadow-lg rounded-xl overflow-hidden transition-all card-hover border border-gray-200 relative">
                         <figure class="h-48 bg-gray-100">
                             <img src="${book.imageUrl || 'https://placehold.co/400x300?text=Book+Cover'}" alt="${escapeHtml(book.title)}" class="object-cover w-full h-full" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
                         </figure>
                         <div class="card-body">
                             <h2 class="card-title text-lg font-bold">${escapeHtml(book.title)}</h2>
                             <p class="text-sm text-gray-500">Autor: ${escapeHtml(book.author)}</p>
-                            <p class="text-md font-semibold text-primary">💰 ${book.price} €</p>
+                            <p class="text-md font-semibold text-primary">${book.price} €</p>
                             <p class="text-sm text-gray-600">${escapeHtml((book.description || 'Opis nije dostupan').substring(0,80))}</p>
                             <div class="flex justify-between items-center mt-2 flex-wrap gap-2">
                                 <div class="flex items-center gap-1 text-sm">
@@ -396,9 +438,9 @@
                                     <span>(${reviewCount})</span>
                                 </div>
                                 <div class="flex gap-1">
-                                    <button class="btn btn-xs btn-outline btn-info review-btn" data-id="${book.id}">📝 Recenzije</button>
-                                    <button class="btn btn-xs btn-outline btn-primary cart-add-btn" data-id="${book.id}" data-title="${escapeHtml(book.title)}" data-price="${book.price}" data-image="${book.imageUrl || ''}" data-seller="${escapeHtml(book.sellerEmail || '')}">🛒 Dodaj u košaricu</button>
-                                    ${isOwner ? `<button class="btn btn-xs btn-outline btn-error delete-book-btn" data-id="${book.id}" data-sellerid="${book.sellerId}">🗑️ Obriši</button>` : ''}
+                                    <button class="btn btn-xs btn-outline btn-info review-btn " data-id="${book.id}" style="background-color:#ffdec7; color:#493129">Recenzije</button>
+                                    <button class="btn btn-xs btn-outline btn-primary cart-add-btn " data-id="${book.id}" data-title="${escapeHtml(book.title)}" data-price="${book.price}" data-image="${book.imageUrl || ''}" data-seller="${escapeHtml(book.sellerEmail || '')}" style="background-color:#8b597b; color:#493129">Dodaj u košaricu</button>
+                                    ${isOwner ? `<button class="btn btn-xs btn-outline btn-error delete-book-btn " data-id="${book.id}" data-sellerid="${book.sellerId}" style="background-color:#efa3a0; color:#493129">Obriši</button>` : ''}
                                 </div>
                             </div>
                             <p class="text-xs text-gray-400 mt-1">Prodavač: ${escapeHtml(book.sellerEmail || 'anonimno')}</p>
@@ -407,7 +449,7 @@
                 `;
             }).join('');
             
-            // Eventi za recenzije
+            
             document.querySelectorAll('.review-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = btn.getAttribute('data-id');
@@ -415,7 +457,6 @@
                 });
             });
             
-            // Event za dodavanje u košaricu
             document.querySelectorAll('.cart-add-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -433,8 +474,7 @@
                     }
                 });
             });
-            
-            // Event za brisanje knjige (samo vlasnik)
+
             document.querySelectorAll('.delete-book-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     e.preventDefault();
@@ -449,11 +489,11 @@
             });
         }
         
-        async function openReviewModal(bookId) {
-            currentBookId = bookId;
-            const bookRef = ref(db, `books/${bookId}`);
-            const snapshot = await get(bookRef);
-            const book = snapshot.val();
+        async function openReviewModal(bookId){
+            currentBookId=bookId;
+            const bookRef=ref(db, `books/${bookId}`);
+            const snapshot=await get(bookRef);
+            const book=snapshot.val();
             if(!book) return;
             
             document.getElementById('reviewModalTitle').innerHTML = `Recenzije za: ${escapeHtml(book.title)}`;
@@ -474,33 +514,33 @@
                 `).join('');
             }
             
-            const addReviewSection = document.getElementById('addReviewSection');
-            if(currentUser) {
-                addReviewSection.style.display = 'block';
-            } else {
-                addReviewSection.style.display = 'none';
+            const addReviewSection=document.getElementById('addReviewSection');
+            if(currentUser){
+                addReviewSection.style.display='block';
+            }else{
+                addReviewSection.style.display='none';
             }
             reviewModal.showModal();
         }
         
-        async function addNewBook() {
-            if(!currentUser) { 
+        async function addNewBook(){
+            if(!currentUser){ 
                 showToast("Morate se prijaviti za prodaju!", "error"); 
                 return; 
             }
             
-            const title = document.getElementById('bookTitle').value.trim();
-            const author = document.getElementById('bookAuthor').value.trim();
-            const price = parseFloat(document.getElementById('bookPrice').value);
-            const imageUrl = document.getElementById('bookImage').value.trim();
-            const description = document.getElementById('bookDesc').value.trim();
+            const title=document.getElementById('bookTitle').value.trim();
+            const author=document.getElementById('bookAuthor').value.trim();
+            const price=parseFloat(document.getElementById('bookPrice').value);
+            const imageUrl=document.getElementById('bookImage').value.trim();
+            const description=document.getElementById('bookDesc').value.trim();
             
             if(!title || !author || isNaN(price) || price <= 0) {
                 showToast("Molimo ispunite naslov, autora i cijenu (>0)", "error");
                 return;
             }
             
-            try {
+            try{
                 const newBookRef = push(ref(db, 'books'));
                 await set(newBookRef, {
                     title: title,
@@ -520,30 +560,30 @@
                 document.getElementById('bookDesc').value = '';
             } catch(e) {
                 console.error("Greška:", e);
-                showToast("❌ Greška: " + e.message, "error");
+                showToast("Greška: " + e.message, "error");
             }
         }
         
-        async function addReview() {
-            if(!currentUser) { 
+        async function addReview(){
+            if(!currentUser){ 
                 showToast("Prijavite se za ostavljanje recenzije", "error"); 
                 return; 
             }
             if(!currentBookId) return;
             
-            const reviewText = newReviewText.value.trim();
-            if(!reviewText) { 
+            const reviewText=newReviewText.value.trim();
+            if(!reviewText){ 
                 showToast("Napišite recenziju", "error"); 
                 return; 
             }
             
-            let selectedRating = 5;
-            const radioSelected = document.querySelector('input[name="rating"]:checked');
-            if(radioSelected) selectedRating = parseInt(radioSelected.value);
+            let selectedRating=5;
+            const radioSelected=document.querySelector('input[name="rating"]:checked');
+            if(radioSelected) selectedRating=parseInt(radioSelected.value);
             
-            try {
-                const reviewId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                const reviewRef = ref(db, `books/${currentBookId}/reviews/${reviewId}`);
+            try{
+                const reviewId=Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const reviewRef=ref(db, `books/${currentBookId}/reviews/${reviewId}`);
                 await set(reviewRef, {
                     userId: currentUser.uid,
                     userEmail: currentUser.email,
@@ -552,8 +592,8 @@
                     timestamp: Date.now()
                 });
                 showToast("Recenzija dodana!");
-                newReviewText.value = '';
-                const defaultRating = document.querySelector('input[name="rating"][value="5"]');
+                newReviewText.value= '';
+                const defaultRating= document.querySelector('input[name="rating"][value="5"]');
                 if(defaultRating) defaultRating.checked = true;
                 reviewModal.close();
             } catch(e) {
@@ -562,34 +602,35 @@
             }
         }
         
-        // AUTH FUNKCIJE
+
         async function handleLogin(email, password) {
             authErrorMsg.classList.add('hidden');
-            try {
-                const userCred = await signInWithEmailAndPassword(auth, email, password);
-                showToast(`👋 Dobrodošli, ${userCred.user.email}!`);
+            try{
+                const userCred=await signInWithEmailAndPassword(auth, email, password);
+                showToast(`Dobrodošli, ${userCred.user.email}!`);
                 authModal.close();
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
-            } catch(error) {
-                let errorMessage = "Greška: " + error.message;
-                authErrorMsg.textContent = errorMessage;
+            } catch(error){
+                let errorMessage="Greška: " + error.message;
+                authErrorMsg.textContent=errorMessage;
                 authErrorMsg.classList.remove('hidden');
                 showToast(errorMessage, "error");
             }
         }
         
+        //authent
         async function handleRegister(email, password) {
             authErrorMsg.classList.add('hidden');
             if(password.length < 6) {
-                const msg = "Lozinka mora imati najmanje 6 znakova!";
-                authErrorMsg.textContent = msg;
+                const msg="Lozinka mora imati najmanje 6 znakova!";
+                authErrorMsg.textContent=msg;
                 authErrorMsg.classList.remove('hidden');
                 showToast(msg, "error");
                 return;
             }
             try {
-                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                const userCred=await createUserWithEmailAndPassword(auth, email, password);
                 showToast(`Registracija uspješna! Dobrodošli, ${userCred.user.email}!`);
                 authModal.close();
                 document.getElementById('loginEmail').value = '';
@@ -602,23 +643,23 @@
             }
         }
         
-        // Event listeners
+    //event
         onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if(user) {
-                userInfoPlaceholder.innerHTML = `${user.email}`;
+            currentUser=user;
+            if(user){
+                userInfoPlaceholder.innerHTML=`${user.email}`;
                 loginBtn.classList.add('hidden');
                 logoutBtn.classList.remove('hidden');
                 addBookPanel.classList.remove('hidden');
-            } else {
-                userInfoPlaceholder.innerHTML = '👤 Neprijavljen';
+            } else{
+                userInfoPlaceholder.innerHTML='👤 Neprijavljen';
                 loginBtn.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
                 addBookPanel.classList.add('hidden');
-                cartItems = []; // reset košarice pri odjavi
+                cartItems = []; 
                 updateCartUI();
             }
-            renderBooks(); // ponovno renderiraj zbog delete gumba i dodavanja
+            renderBooks(); 
         });
         
         logoutBtn.addEventListener('click', async () => {
@@ -636,15 +677,15 @@
         closeModalBtn.addEventListener('click', () => authModal.close());
         
         modalLoginAction.addEventListener('click', () => {
-            const email = document.getElementById('loginEmail').value;
-            const pwd = document.getElementById('loginPassword').value;
+            const email=document.getElementById('loginEmail').value;
+            const pwd=document.getElementById('loginPassword').value;
             if(email && pwd) handleLogin(email, pwd);
             else showToast("Unesite email i lozinku", "error");
         });
         
         modalRegisterAction.addEventListener('click', () => {
-            const email = document.getElementById('loginEmail').value;
-            const pwd = document.getElementById('loginPassword').value;
+            const email=document.getElementById('loginEmail').value;
+            const pwd=document.getElementById('loginPassword').value;
             if(email && pwd) handleRegister(email, pwd);
             else showToast("Unesite email i lozinku", "error");
         });
@@ -665,8 +706,7 @@
         
         loadBooks();
         updateCartUI();
-        console.log("Aplikacija pokrenuta s košaricom i brisanjem!");
-        showToast("LibraMarket radi! Prijavite se i prodajte/ kupujte knjige. Sada možete brisati svoje oglase i koristiti košaricu.", "success");
+        
     </script>
 </body>
 </html>
