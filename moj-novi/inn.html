@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>LibraMarket | Knjižna tržnica</title>
+    <title>LibraMarket | Prodaja školskih knjiga</title>
     <link rel="icon" type="image/x-icon" href="slike/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.css" rel="stylesheet" type="text/css" />
@@ -19,59 +19,49 @@
     <style>
         .card-hover:hover { transform: translateY(-4px); transition: all 0.2s ease; }
         .toast-notify { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
-        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .cart-badge { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border-radius: 999px; font-size: 10px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .cart-btn-relative { position: relative; }
     </style>
 </head>
 <body class="font-sans antialiased" style="background-image: url('slike/873ac4ef22857e0a701530584a7483b7.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-
-    <div id="app" class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">  
-        
+    <div id="app" class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">    
         <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6 gap-3 bg-white p-4 rounded-xl shadow-sm" style="background-color: #8b597b; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">
             <div class="flex items-center gap-2">
-               <img src="slike/log.png" alt="opis slike"><h1 class="text-2xl font-bold text-white">LibraMarket</h1>
+               <img src="slike/log.png" alt="logo"><h1 class="text-2xl font-bold text-white">LibraMarket</h1>
             </div>
             <div class="flex gap-4 items-center">
-                <button id="cartIconBtn" class="btn btn-ghost btn-sm cart-btn-relative gap-1">
-                    🛒 <span id="cartCountBadge" class="font-bold text-sm">0</span>
+                <button id="kosaraBtn" class="btn btn-ghost btn-sm cart-btn-relative gap-1 text-white">
+                    🛒 <span id="brojackosara" class="font-bold text-sm">0</span>
                 </button>
                 <div id="auth-section" class="flex gap-3 items-center">
-                    <div id="userInfoPlaceholder" class="text-sm font-medium"></div>
-                    <button id="loginBtn" class="btn btn-primary btn-sm text-gray-800" style="background-color: #ffeedb;">Prijava</button>
-                    <button id="logoutBtn" class="btn btn-outline btn-sm hidden" style="background-color: #ffeedb">Odjava</button>
+                    <div id="userInfMjesto" class="text-sm font-medium text-white"></div>
+                    <button id="loginBtn" class="btn btn-sm text-gray-800" style="background-color: #ffeedb;">Prijava</button>
+                    <button id="logoutBtn" class="btn btn-sm hidden" style="background-color: #ffeedb;">Odjava</button>
                 </div>
             </div>
         </div>
-
         <div id="toastContainer" class="toast-notify"></div>
-
-       
         <dialog id="Mauth" class="modal">
-            <div class="modal-box"  style="background-color: #ffeedb">
+            <div class="modal-box" style="background-color: #ffeedb">
                 <h3 class="font-bold text-lg mb-4 text-gray-800">Prijava / Registracija</h3>
                 <input type="email" id="loginEmail" placeholder="Email" class="input input-bordered w-full mb-3" />
-                <input type="lozinka" id="loginlozinka" placeholder="Lozinka (min 6 znakova)" class="input input-bordered w-full mb-4" />
+                <input type="password" id="loginlozinka" placeholder="Lozinka (min 6 znakova)" class="input input-bordered w-full mb-4" />
                 <div class="flex flex-wrap gap-2">
-                    <button id="Mlogin" class="btn btn-primary flex-1" style="background-color: #8b597b;">Prijavi se</button>
-                    <button id="Mregistracija" class="btn btn-secondary flex-1" style="background-color: #efa3a0;">Registriraj se</button>
-                    <button id="MzatvorikosaruBtn" class="btn btn-ghost">Zatvori</button>
+                    <button id="Mlogin" class="btn flex-1 text-white" style="background-color: #8b597b;">Prijavi se</button>
+                    <button id="Mregistracija" class="btn flex-1 text-white" style="background-color: #efa3a0;">Registriraj se</button>
+                    <button id="ZatvMBtn" class="btn btn-ghost">Zatvori</button>
                 </div>
                 <div id="autherorPoruka" class="text-error text-sm mt-2 hidden"></div>
             </div>
         </dialog>
-
-        
         <dialog id="Mkosara" class="modal">
             <div class="modal-box max-w-lg" style="background-color: #ffeedb">
                 <h3 class="font-bold text-lg mb-3">🛒 Moja košarica</h3>
-                <div id="proizvodiKos" class="max-h-80 overflow-y-auto border rounded-lg p-2 bg-gray-50"></div>
+                <div id="kosaralista" class="max-h-80 overflow-y-auto border rounded-lg p-2 bg-white/50"></div>
                 <div class="mt-4 flex justify-between items-center">
-                    <span class="font-bold">Ukupno: <span id="cartTotalPrice">0.00</span> €</span>
+                    <span class="font-bold">Ukupno: <span id="kosaraukupcjena">0.00</span> €</span>
                     <div class="flex gap-2">
-                        <button id="ocistikosaru" class="btn btn-sm btn-error" style="background-color: #efa3a0;">Isprazni</button>
-                        <button id="zavrsikosaruBtn class="btn btn-sm btn-success" style="background-color: #8b597b;">Nastavi na kupnju</button>
+                        <button id="ocistikosaru" class="btn btn-sm text-white" style="background-color: #efa3a0;">Isprazni</button>
+                        <button id="zavrsikosaruBtn" class="btn btn-sm text-white" style="background-color: #8b597b;">Nastavi na kupnju</button>
                     </div>
                 </div>
                 <div class="modal-action">
@@ -79,25 +69,21 @@
                 </div>
             </div>
         </dialog>
-
-       
         <div id="dodPanelKnjig" class="bg-white rounded-xl shadow-md p-5 mb-8 hidden border border-gray-200" style="background-color:#8b597b">
             <h2 class="text-xl font-semibold mb-3 flex items-center gap-2 text-white">Prodaj svoju knjigu</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="background-color:#8b597b">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="text" id="knjiganaslov" placeholder="Naslov knjige *" class="input input-bordered w-full" style="background-color:#ffeedb"/>
                 <input type="text" id="knjigaautor" placeholder="Autor *" class="input input-bordered w-full" style="background-color:#ffeedb"/>
                 <input type="number" id="knjigacjena" placeholder="Cijena (€) *" class="input input-bordered w-full" step="0.01" style="background-color:#ffeedb"/>
-                <input type="text" id="knjigaslika" placeholder="URL slike " class="input input-bordered w-full" style="background-color:#ffeedb"/>
+                <input type="text" id="knjigaslika" placeholder="URL slike (opcionalno)" class="input input-bordered w-full" style="background-color:#ffeedb"/>
                 <textarea id="knjigaopis" placeholder="Opis knjige..." class="textarea textarea-bordered md:col-span-2" rows="2" style="background-color:#ffeedb"></textarea>
             </div>
             <div class="mt-4 flex justify-end">
-                <button id="dodKnjigBtn" class="btn btn-success"  style="background-color:#efa3a0">Objavi knjigu za prodaju</button>
+                <button id="dodKnjigBtn" class="btn text-white" style="background-color:#efa3a0;">Objavi knjigu za prodaju</button>
             </div>
         </div>
-
-        
-        <div class="flex flex-wrap gap-3 justify-between items-center my-6 bg-white p-3 rounded-lg shadow-sm" style="background-color:#f1bfbd">
-            <div class="flex gap-2 items-center" >
+        <div class="flex flex-wrap gap-3 justify-between items-center my-6 p-3 rounded-lg shadow-sm" style="background-color:#f1bfbd">
+            <div class="flex gap-2 items-center">
                 <span class="text-sm font-medium">Pretraži:</span>
                 <input type="text" id="pretraga" placeholder="Naslov ili autor" class="input input-bordered input-sm w-48" style="background-color:#ffeedb"/>
             </div>
@@ -110,17 +96,13 @@
                 </select>
             </div>
         </div>
-
-        <div id="gridknjig" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-transparent"></div>
-
-
-    
+        <div id="gridknjig" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-transparent pb-10"></div>
         <dialog id="Mrecenzije" class="modal">
             <div class="modal-box max-w-lg" style="background-color:#ffeedb">
                 <h3 id="reviewModalTitle" class="font-bold text-lg">Recenzije za knjigu</h3>
-                <div id="recenzijediv" class="mt-3 max-h-60 overflow-y-auto border rounded p-2 bg-gray-50"></div>
-                <div class="mt-4" id="dodajreczsekcija">
-                    <textarea id="newReviewText" rows="2" placeholder="Napiši svoju recenziju..." class="textarea textarea-bordered w-full"></textarea>
+                <div id="recenzijediv" class="mt-3 max-h-60 overflow-y-auto border rounded p-2 bg-white/50"></div>
+                <div class="mt-4 hidden" id="dodajreczsekcija">
+                    <textarea id="novarecenzija" rows="2" placeholder="Napiši svoju recenziju..." class="textarea textarea-bordered w-full"></textarea>
                     <div class="flex flex-wrap justify-between items-center mt-2 gap-2">
                         <div class="rating rating-sm" id="ratingStars">
                             <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
@@ -129,67 +111,45 @@
                             <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" />
                             <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" checked />
                         </div>
-                        <button id="pohraniRecenzBtn" class="btn btn-primary btn-sm" style="background-color:#8b597b">Dodaj recenziju</button>
+                        <button id="pohraniRecenzBtn" class="btn btn-sm text-white" style="background-color:#8b597b;">Dodaj recenziju</button>
                     </div>
                 </div>
                 <div class="modal-action">
-                    <button id="Mzatvorirecenz" class="btn">Zatvori</button>
+                    <button id="Mzatvorirecenz" class="btn btn-sm">Zatvori</button>
                 </div>
             </div>
         </dialog>
     </div>
-
-    <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10 " style="background-color: #8b597b; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">
-  <aside>
-    <p>
-      <h2>LibraMarket- najbolja stranica za kupnju i prodaju školskih knjiga</h2><br>
-      <h2>Ako imaš knjige za neki razred osnovne/srednje škole koje ti više nisu potrebne onda je ova stranica pravo rješenje za tebe!</h2>
-      <br>
-      <b><i>KONTAKT:</i></b><br> <b>Petra J.</b> - +385 12 345 6788<br>
-               <b>Daniela I.</b> - +385 98 765 4321
-    </p>
-  </aside>
-  <nav>
-    <h6 class="footer-title">Social</h6>
-    <div class="grid grid-flow-col gap-4">
-      <a href="https://x.com/" target="_blank">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          class="fill-current">
-          <path
-            d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-        </svg>
-      </a>
-      <a href="https://www.youtube.com/" target="_blank">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          class="fill-current">
-          <path
-            d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
-        </svg>
-      </a>
-      <a href="https://www.facebook.com/" target="_blank">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          class="fill-current">
-          <path
-            d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
-        </svg>
-      </a>
-    </div>
-  </nav>
+    <footer class="footer sm:footer-horizontal text-neutral-content p-10" style="background-color: #8b597b;">
+        <aside>
+            <h2 class="text-xl font-bold">LibraMarket</h2>
+            <p>Najbolja stranica za kupnju i prodaju školskih knjiga.<br>Ako imaš knjige za neki razred osnovne/srednje škole koje ti više nisu potrebne onda je ova stranica pravo rješenje za tebe!</p>
+            <p class="mt-4"><b>KONTAKT:</b><br> Petra J. | Daniela I.</p>
+        </aside>
+        <nav>
+            <h6 class="footer-title">Social</h6>
+            <div class="grid grid-flow-col gap-4">
+                <a href="https://x.com/" target="_blank" class="hover:text-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+                    </svg>
+                </a>
+                <a href="https://www.youtube.com/" target="_blank" class="hover:text-red-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
+                    </svg>
+                </a>
+                <a href="https://www.facebook.com/" target="_blank" class="hover:text-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+                        <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
+                    </svg>
+                </a>
+            </div>
+        </nav>
     </footer>
+
     <script type="module">
-        const firebaseConfig = {
+        const firebaseConfig ={
             apiKey:"AIzaSyCO7QLZsCxQeY6uHYbtaByg2exqtfCM0G0",
             authDomain:"zavrsnipetradaniela.firebaseapp.com",
             databaseURL:"https://zavrsnipetradaniela-default-rtdb.europe-west1.firebasedatabase.app",
@@ -207,54 +167,73 @@
         const auth=getAuth(app);
         const db=getDatabase(app);
         
-        //dom
-        const loginBtn=document.getElementById('loginBtn');
-        const logoutBtn=document.getElementById('logoutBtn');
-        const Mauth=document.getElementById('Mauth');
-        const Mlogin=document.getElementById('Mlogin');
+        
+     const loginBtn=document.getElementById('loginBtn');
+     const logoutBtn=document.getElementById('logoutBtn');
+    const Mauth=document.getElementById('Mauth');
+      const Mlogin=document.getElementById('Mlogin');
         const Mregistracija=document.getElementById('Mregistracija');
         const ZatvMBtn=document.getElementById('ZatvMBtn');
-        const userInfMjesto=document.getElementById('userInfMjesto');
+       const userInfMjesto=document.getElementById('userInfMjesto');
         const dodPanelKnjig=document.getElementById('dodPanelKnjig');
         const dodKnjigBtn=document.getElementById('dodKnjigBtn');
         const gridknjig=document.getElementById('gridknjig');
-        const pretraga=document.getElementById('pretraga');
+       const pretraga=document.getElementById('pretraga');
         const sortiranje=document.getElementById('sortiranje');
         const Mrecenzije=document.getElementById('Mrecenzije');
         const recenzijediv=document.getElementById('recenzijediv');
-        const pohraniRecenzBtn=document.getElementById('pohraniRezenzBtn');
-        const novarecenzija=document.getElementById('novarecenzija');
+        const pohraniRecenzBtn=document.getElementById('pohraniRecenzBtn');
+       const novarecenzija=document.getElementById('novarecenzija');
         const Mzatvorirecenz=document.getElementById('Mzatvorirecenz');
         const autherorPoruka=document.getElementById('autherorPoruka');
         const kosaraBtn=document.getElementById('kosaraBtn');
         const Mkosara=document.getElementById('Mkosara');
         const kosaralista=document.getElementById('kosaralista');
-        const kosaraukupcjena=document.getElementById('kosaraukupcjena');
+      const kosaraukupcjena=document.getElementById('kosaraukupcjena');
         const ocistikosaru=document.getElementById('ocistikosaru');
         const zavrsikosaruBtn=document.getElementById('zavrsikosaruBtn');
         const MzatvorikosaruBtn=document.getElementById('MzatvorikosaruBtn');
-        const brojackosara=document.getElementById('brojackosara');
+      const brojackosara=document.getElementById('brojackosara');
         
         let treuntniKorisn=null;
         let trenutniKid=null;
         let sveknjige=[];
-        
         let proizvodiKos=[]; 
         
-        function updejtajkosaruUI(){
+     function showToast(message,type='success'){
+            const container=document.getElementById('toastContainer');
+            if(!container) return;
+            const toast=document.createElement('div');
+            toast.className=`alert alert-${type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success'} shadow-lg mb-2`;
+            toast.innerHTML=`<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() =>toast.remove(), 3000);
+        }
+        function escapeHtml(str){
+            if(!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                return m;
+            });
+        }
+        function zvjezdice(rating){
+            let zvjezdice='';
+            const punezvjezde=Math.floor(rating);
+            for(let i=1;i<=5;i++) {
+                zvjezdice+=`<input type="radio" name="rating-static" disabled ${i<=punezvjezde? 'checked' : ''} class="mask mask-star-2 bg-orange-400" />`;
+            }
+            return zvjezdice;
+        }
+       function updejtajkosaruUI(){
             const broj=proizvodiKos.length;
             brojackosara.innerText=broj;
-            if (broj>0){
-                brojackosara.classList.add('bg-red-100','text-white','rounded-full','px-1.5','py-0','text-xs','ml-1');
-            }else{
-                brojackosara.innerText='0';
-            }
-            MprozorKos();
+            prikaziKosaricu();
         }
-        
-        function MprozorKos(){
-            if (!kosaralista) return;
-            if (proizvodiKos.length===0) {
+        function prikaziKosaricu(){
+            if(!kosaralista) return;
+            if(proizvodiKos.length===0) {
                 kosaralista.innerHTML='<div class="text-center py-6 text-gray-500">Košarica je prazna. Dodajte knjige koje vas zanimaju!</div>';
                 kosaraukupcjena.innerText='0.00';
                 return;
@@ -274,24 +253,25 @@
             }).join('');
             kosaralista.innerHTML=html;
             kosaraukupcjena.innerText=sum.toFixed(2);
+            
             document.querySelectorAll('.remove-cart-item').forEach(btn =>{
                 btn.addEventListener('click',(e) =>{
                     const idx=parseInt(btn.getAttribute('data-index'));
                     if (!isNaN(idx)){
-                        cartItems.splice(idx, 1);
-                        updateCartUI();
+                        proizvodiKos.splice(idx, 1);
+                        updejtajkosaruUI();
                         showToast("Knjiga uklonjena iz košarice", "success");
                     }
                 });
             });
         }
         
-        function dodajukos(knjiga){
+     function dodajukos(knjiga){
             if (!treuntniKorisn) {
                 showToast("Morate se prijaviti za korištenje košarice!", "error");
                 return false;
             }
-            if (proizvodiKos.some(proizvod =>proizvod.id===knjiga.id)) {
+            if (proizvodiKos.some(proizvod => proizvod.id === knjiga.id)) {
                 showToast("Ova knjiga je već u košarici!", "warning");
                 return false;
             }
@@ -302,18 +282,16 @@
                 slika: knjiga.slikaUrl || '',
                 prodavacEmail: knjiga.prodavacEmail
             });
-            updateCartUI();
+            updejtajkosaruUI();
             showToast(`"${knjiga.naslov}" dodana u košaricu`, "success");
             return true;
-        }
-        
+        } 
         function ocistikos(){
             proizvodiKos=[];
             updejtajkosaruUI();
             showToast("Košarica ispražnjena", "info");
-        }
-        
-        function zavrsikosara() {
+        } 
+      function zavrsikosara() {
             if (!treuntniKorisn) {
                 showToast("Prijavite se za završetak kupnje", "error");
                 return;
@@ -329,56 +307,6 @@
             updejtajkosaruUI();
             Mkosara.close();
         }
-        
-        function showToast(message,type='success') {
-            const container=document.getElementById('toastContainer');
-            if (!container) return;
-            const toast=document.createElement('div');
-            toast.className=`alert alert-${type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success'} shadow-lg mb-2`;
-            toast.innerHTML=`<span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() =>toast.remove(), 3000);
-        }
-        
-        function escapeHtml(str){
-            if(!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if(m === '&') return '&amp;';
-                if(m === '<') return '&lt;';
-                if(m === '>') return '&gt;';
-                return m;
-            });
-        }
-        
-        function zvjezdice(rating){
-            let zvjezdice='';
-            const punezvjezde=Math.floor(rejting);
-            for(let i=1;i<=5;i++) {
-                zvjezdice+=`<input type="radio" name="rating-static" disabled ${i<=punezvjezde? 'checked' : ''} class="mask mask-star-2 bg-orange-400" />`;
-            }
-            return zvjezdice;
-        }
-        
-        function ucitajknjige(){
-            const knjigeref=ref(db, 'books');
-            onValue(knjigeref, (snapshot) => {
-                const data=snapshot.val();
-                if(data){
-                    sveknjige=Object.keys(data).map(key =>({
-                        id: key,
-                        ...data[key]
-                    }));
-                } else {
-                    sveknjige= [];
-                }
-                renderBooks();
-            }, (error) => {
-                console.error("Greška:", error);
-                showToast("Greška pri učitavanju knjiga: " + error.message, "error");
-            });
-        }
-        
-        //samo ako je neko prijavljen more brisat
         async function brisanjeknjiga(knjigaId, prodavacId){
             if (!treuntniKorisn) return false;
             if (treuntniKorisn.uid !== prodavacId){
@@ -398,34 +326,34 @@
             return false;
         }
         
-        function rknjige(){
+     function rknjige(){
             let filtrirano=[...sveknjige];
             const pretrazipojam=pretraga.value.toLowerCase();
-            if(pretrazipojam){
-                filtrirano=filter.filter(knjiga => 
+         if(pretrazipojam){
+                filtrirano=filtrirano.filter(knjiga => 
                     knjiga.naslov?.toLowerCase().includes(pretrazipojam) || 
                     knjiga.autor?.toLowerCase().includes(pretrazipojam)
                 );
             }
             
-            const sortVal=sortSelect.value;
-            if(sortVal ==='price_asc') filtered.sort((a,b) => (a.cjena||0) - (b.cjena||0));
-            if(sortVal ==='price_desc') filtered.sort((a,b) => (b.cjena||0) - (a.cjena||0));
+            const sortVal=sortiranje.value;
+            if(sortVal ==='price_asc') filtrirano.sort((a,b) => (a.cjena||0) - (b.cjena||0));
+            if(sortVal ==='price_desc') filtrirano.sort((a,b) => (b.cjena||0) - (a.cjena||0));
             
-            if(filter.length === 0) {
-                gridknjig.innerHTML=`<div class="col-span-full text-center py-12 bg-transparent rounded-xl shadow">Trenutno nema knjiga. Budi prvi koji će prodati knjigu!</div>`;
+            if(filtrirano.length === 0) {
+                gridknjig.innerHTML='';
                 return;
             }
             
-            gridknjig.innerHTML=filter.map(knjiga => {
+            gridknjig.innerHTML=filtrirano.map(knjiga => {
                 const recenz=knjiga.reviews ? Object.values(knjiga.reviews) : [];
-                const prosjecocjena=reviews.length > 0 ? (reviews.reduce((sum, r) => sum + (r.rating||0), 0) / reviews.length).toFixed(1) : 'Nema';
-                const brojacrecz=reviews.length;
-                const vlasnik=treuntniKorisn && knjiga.prodavacId ===treuntniKorisn.uid;
+                const prosjecocjena=recenz.length > 0 ? (recenz.reduce((sum, r) => sum + (r.rating||0), 0) / recenz.length).toFixed(1) : 'Nema';
+                const brojacrecz=recenz.length;
+                const vlasnik=treuntniKorisn && knjiga.prodavacId === treuntniKorisn.uid;
                 return `
-                    <div class="card card-compact bg-transparent shadow-lg rounded-xl overflow-hidden transition-all card-hover border border-gray-200 relative">
+                    <div class="card card-compact bg-white shadow-lg rounded-xl overflow-hidden transition-all card-hover border border-gray-200 relative">
                         <figure class="h-48 bg-gray-100">
-                            <img src="${knjiga.slikaUrl || 'https://placehold.co/400x300?text=Book+Cover'}" alt="${escapeHtml(knjiga.naslov)}" class="object-cover w-full h-full" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                            <img src="${knjiga.slikaUrl || ''}" alt="${escapeHtml(knjiga.naslov)}" class="object-cover w-full h-full" onerror="this.style.display='none'">
                         </figure>
                         <div class="card-body">
                             <h2 class="card-title text-lg font-bold">${escapeHtml(knjiga.naslov)}</h2>
@@ -434,13 +362,13 @@
                             <p class="text-sm text-gray-600">${escapeHtml((knjiga.opis || 'Opis nije dostupan').substring(0,80))}</p>
                             <div class="flex justify-between items-center mt-2 flex-wrap gap-2">
                                 <div class="flex items-center gap-1 text-sm">
-                                    <div class="rating rating-xs">${prosjecocjena!== 'Nema' ? zvjezdice(parseFloat(prosjecocjena)) : '⭐ Nema ocjena'}</div>
+                                    <div class="rating rating-xs">${prosjecocjena !== 'Nema' ? zvjezdice(parseFloat(prosjecocjena)) : '⭐ Nema ocjena'}</div>
                                     <span>(${brojacrecz})</span>
                                 </div>
                                 <div class="flex gap-1">
-                                    <button class="btn btn-xs btn-outline btn-info review-btn " data-id="${knjiga.id}" style="background-color:#ffdec7; color:#493129">Recenzije</button>
-                                    <button class="btn btn-xs btn-outline btn-primary cart-add-btn " data-id="${knjiga.id}" data-title="${escapeHtml(knjiga.naslov)}" data-price="${knjiga.cjena}" data-image="${knjiga.slikaUrl || ''}" data-seller="${escapeHtml(knjiga.prodavacEmail || '')}" style="background-color:#8b597b; color:#493129">Dodaj u košaricu</button>
-                                    ${vlasnik? `<button class="btn btn-xs btn-outline btn-error delete-book-btn " data-id="${knjiga.id}" data-sellerid="${knjiga.prodavacId}" style="background-color:#efa3a0; color:#493129">Obriši</button>` : ''}
+                                    <button class="btn btn-xs btn-outline btn-info review-btn" data-id="${knjiga.id}" style="background-color:#ffdec7; color:#493129">Recenzije</button>
+                                    <button class="btn btn-xs btn-outline btn-primary cart-add-btn" data-id="${knjiga.id}" data-title="${escapeHtml(knjiga.naslov)}" data-price="${knjiga.cjena}" data-image="${knjiga.slikaUrl || ''}" data-seller="${escapeHtml(knjiga.prodavacEmail || '')}" style="background-color:#8b597b; color:#493129">Dodaj u košaricu</button>
+                                    ${vlasnik ? `<button class="btn btn-xs btn-outline btn-error delete-book-btn" data-id="${knjiga.id}" data-sellerid="${knjiga.prodavacId}" style="background-color:#efa3a0; color:#493129">Obriši</button>` : ''}
                                 </div>
                             </div>
                             <p class="text-xs text-gray-400 mt-1">Prodavač: ${escapeHtml(knjiga.prodavacEmail || 'anonimno')}</p>
@@ -449,39 +377,32 @@
                 `;
             }).join('');
             
-            
-            document.upiti('.review-btn').forEach(btn => {
+            document.querySelectorAll('.review-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id=btn.getAttribute('data-id');
-                    Mrecz(id);
+                    otvorirecenzije(id);
                 });
             });
             
-            document.upiti('.cart-add-btn').forEach(btn => {
+            document.querySelectorAll('.cart-add-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    e.preventirajnezgodu();
+                    e.preventDefault();
                     if(!treuntniKorisn) { showToast("Prijavite se za dodavanje u košaricu", "error"); return; }
                     const id=btn.getAttribute('data-id');
-                    const naslov= btn.getAttribute('data-title');
-                    const cjena= parseFloat(btn.getAttribute('data-price'));
-                    const slikaUrl = btn.getAttribute('data-image');
-                    const prodavacEmail = btn.getAttribute('data-seller');
                     const knjiga= sveknjige.find(b => b.id === id);
                     if(knjiga){
                         dodajukos({ id: knjiga.id, naslov: knjiga.naslov, cjena: knjiga.cjena, slikaUrl: knjiga.slikaUrl, prodavacEmail: knjiga.prodavacEmail });
-                    } else {
-                        dodajukos({ id, naslov, cjena, slikaUrl, prodavacEmail });
                     }
                 });
             });
 
-            document.upiti('.delete-book-btn').forEach(btn => {
+            document.querySelectorAll('.delete-book-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
-                    e.preventirajnezgodu();
+                    e.preventDefault();
                     const knjigaId= btn.getAttribute('data-id');
                     const prodavacId = btn.getAttribute('data-sellerid');
                     if(knjigaId && prodavacId) {
-                        await deleteBook(knjigaId, prodavacId);
+                        await brisanjeknjiga(knjigaId, prodavacId);
                     } else {
                         showToast("Neispravni podaci knjige", "error");
                     }
@@ -505,8 +426,8 @@
                 recenzijediv.innerHTML = reviews.map(rev => `
                     <div class="border-b py-2">
                         <div class="flex items-center gap-2">
-                            <div class="rating rating-xs">${zvjezdice(rev.rejting)}</div>
-                            <span class="text-xs font-semibold">${escapeHtml(rev.prodavacEmail)}</span>
+                            <div class="rating rating-xs">${zvjezdice(rev.rating)}</div>
+                            <span class="text-xs font-semibold">${escapeHtml(rev.userEmail || rev.korisnikEmail)}</span>
                             <span class="text-xs text-gray-400">${new Date(rev.timestamp).toLocaleDateString()}</span>
                         </div>
                         <p class="text-sm mt-1">${escapeHtml(rev.text)}</p>
@@ -522,7 +443,44 @@
             }
             Mrecenzije.showModal();
         }
-        
+        async function dodajrecz(){
+            if(!treuntniKorisn){ 
+                showToast("Prijavite se za ostavljanje recenzije", "error"); 
+                return; 
+            }
+            if(!trenutniKid) return;
+            
+            const reviewText=novarecenzija.value.trim();
+            if(!reviewText){ 
+                showToast("Napišite recenziju", "error"); 
+                return; 
+            }
+            
+            let selectedRating=5;
+            const radioSelected=document.querySelector('input[name="rating"]:checked');
+            if(radioSelected) selectedRating=parseInt(radioSelected.value);
+            
+            try{
+                const reviewId=Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const reviewRef=ref(db, `books/${trenutniKid}/reviews/${reviewId}`);
+                await set(reviewRef, {
+                    korisnikId: treuntniKorisn.uid,
+                    korisnikEmail: treuntniKorisn.email,
+                    userEmail: treuntniKorisn.email,
+                    text: reviewText,
+                    rating: selectedRating,
+                    timestamp: Date.now()
+                });
+                showToast("Recenzija dodana!");
+                novarecenzija.value= '';
+                const defaultRating= document.querySelector('input[name="rating"][value="5"]');
+                if(defaultRating) defaultRating.checked = true;
+                Mrecenzije.close();
+            } catch(e) {
+                console.error("Greška:", e);
+                showToast("Greška: " + e.message, "error");
+            }
+        }
         async function dodajnovuknjigu(){
             if(!treuntniKorisn){ 
                 showToast("Morate se prijaviti za prodaju!", "error"); 
@@ -563,51 +521,11 @@
                 showToast("Greška: " + e.message, "error");
             }
         }
-        
-        async function dodajrecz(){
-            if(!treuntniKorisn){ 
-                showToast("Prijavite se za ostavljanje recenzije", "error"); 
-                return; 
-            }
-            if(!trenutniKid) return;
-            
-            const reviewText=novarecenzija.value.trim();
-            if(!reviewText){ 
-                showToast("Napišite recenziju", "error"); 
-                return; 
-            }
-            
-            let selectedRating=5;
-            const radioSelected=document.querySelector('input[name="rating"]:checked');
-            if(radioSelected) selectedRating=parseInt(radioSelected.value);
-            
-            try{
-                const reviewId=Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                const reviewRef=ref(db, `books/${trenutniKid}/reviews/${reviewId}`);
-                await set(reviewRef, {
-                    korisnikId: treuntniKorisn.uid,
-                    korisnikEmail: treuntniKorisn.email,
-                    text: reviewText,
-                    rating: selectedRating,
-                    timestamp: Date.now()
-                });
-                showToast("Recenzija dodana!");
-                novarecenzija.value= '';
-                const defaultRating= document.querySelector('input[name="rating"][value="5"]');
-                if(defaultRating) defaultRating.checked = true;
-                Mrecenzije.close();
-            } catch(e) {
-                console.error("Greška:", e);
-                showToast("Greška: " + e.message, "error");
-            }
-        }
-        
-
-        async function logiranje(email, lozinka) {
-         autherorPoruka.classList.add('hidden');
+     async function logiranje(email, lozinka) {
+            autherorPoruka.classList.add('hidden');
             try{
                 const userCred=await signInWithEmailAndPassword(auth, email, lozinka);
-                showToast(`Dobrodošli, ${userCred.korisnik.email}!`);
+                showToast(`Dobrodošli, ${userCred.user.email}!`);
                 Mauth.close();
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginlozinka').value = '';
@@ -618,8 +536,6 @@
                 showToast(errorMessage, "error");
             }
         }
-        
-        
         async function registr(email,lozinka) {
             autherorPoruka.classList.add('hidden');
             if(lozinka.length < 6) {
@@ -631,7 +547,7 @@
             }
             try {
                 const userCred=await createUserWithEmailAndPassword(auth, email,lozinka);
-                showToast(`Registracija uspješna! Dobrodošli, ${userCred.korisnik.email}!`);
+                showToast(`Registracija uspješna! Dobrodošli, ${userCred.user.email}!`);
                 Mauth.close();
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginlozinka').value = '';
@@ -643,8 +559,33 @@
             }
         }
         
-    //event
-        onAuthStateChanged(auth, (korisnik) => {
+       function ucitajknjige(){
+            const knjigeref=ref(db, 'books');
+            onValue(knjigeref, (snapshot) => {
+                const data=snapshot.val();
+                if(data){
+                    sveknjige=Object.keys(data).map(key =>({
+                        id: key,
+                        naslov: data[key].naslov,
+                        autor: data[key].autor,
+                        cjena: data[key].cjena,
+                        slikaUrl: data[key].slikaUrl,
+                        opis: data[key].opis,
+                        prodavacEmail: data[key].prodavacEmail,
+                        prodavacId: data[key].prodavacId,
+                        reviews: data[key].reviews
+                    }));
+                } else {
+                    sveknjige=[];
+                }
+                rknjige();
+            }, (error) => {
+                console.error("Greška:", error);
+                showToast("Greška pri učitavanju knjiga: " + error.message, "error");
+            });
+        }
+        
+      onAuthStateChanged(auth, (korisnik) => {
             treuntniKorisn=korisnik;
             if(korisnik){
                 userInfMjesto.innerHTML=`${korisnik.email}`;
@@ -656,34 +597,30 @@
                 loginBtn.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
                 dodPanelKnjig.classList.add('hidden');
-                proizvodiKos= []; 
+                proizvodiKos=[]; 
                 updejtajkosaruUI();
             }
             rknjige(); 
-        });
-        
-        logoutBtn.addEventListener('click', async () => {
+        });  
+     logoutBtn.addEventListener('click', async () => {
             await signOut(auth);
             showToast("Odjavljeni ste");
-            proizvodiKos= [];
+            proizvodiKos=[];
             updejtajkosaruUI();
         });
-        
-        loginBtn.addEventListener('click', () => {
+      loginBtn.addEventListener('click', () => {
             autherorPoruka.classList.add('hidden');
             Mauth.showModal();
         });
         
         ZatvMBtn.addEventListener('click', () => Mauth.close());
-        
         Mlogin.addEventListener('click', () => {
             const email=document.getElementById('loginEmail').value;
             const lozinka=document.getElementById('loginlozinka').value;
             if(email && lozinka) logiranje(email, lozinka);
             else showToast("Unesite email i lozinku", "error");
         });
-        
-        Mregistracija.addEventListener('click', () => {
+     Mregistracija.addEventListener('click', () => {
             const email=document.getElementById('loginEmail').value;
             const lozinka=document.getElementById('loginlozinka').value;
             if(email && lozinka) registr(email,lozinka);
@@ -693,19 +630,19 @@
         dodKnjigBtn.addEventListener('click', dodajnovuknjigu);
         pohraniRecenzBtn.addEventListener('click', dodajrecz);
         Mzatvorirecenz.addEventListener('click', () => Mrecenzije.close());
-        pretraga.addEventListener('input', () => renderBooks());
-        sortiranje.addEventListener('change', () => renderBooks());
+        pretraga.addEventListener('input', () => rknjige());
+        sortiranje.addEventListener('change', () => rknjige());
         
         kosaraBtn.addEventListener('click', () => {
-            renderCartModal();
+            prikaziKosaricu();
             Mkosara.showModal();
         });
-        MzatvorikosaruBtn.addEventListener('click', () => MprozorKos.close());
+        MzatvorikosaruBtn.addEventListener('click', () => Mkosara.close());
         ocistikosaru.addEventListener('click', () => ocistikos());
         zavrsikosaruBtn.addEventListener('click', () => zavrsikosara());
         
-        loadBooks();
-        updejtajkosaruUI();
+    ucitajknjige();
+    updejtajkosaruUI();
         
     </script>
 </body>
